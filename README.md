@@ -61,5 +61,7 @@ For more information on using the Angular CLI, including detailed command refere
 ## Deployment
 
 To release a new version perform the following:
-1. Run `ng b --output-path docs --base-href /clanmanager/`
-1. Check in the results
+1. Run `ng build` (or `ng b`)
+1. Check in the results.
+1. Wait for GitHub to automatically trigger a deployement.
+1. Access the site at https://codecypherz.github.io/clanmanager/
