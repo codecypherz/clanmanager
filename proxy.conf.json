@@ -1,0 +1,7 @@
+{
+  "/v1": {
+    "target": "https://api.clashroyale.com",
+    "secure": true,
+    "changeOrigin": true
+  }
+}

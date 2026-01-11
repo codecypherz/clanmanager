@@ -2,6 +2,16 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.5.
 
+## Local configuration
+
+You will need an API key from Clash Royale to run this app.
+
+Create a `.env` file in the root and set this key to your API key (without quotes):
+
+```bash
+NG_APP_CLASH_API_KEY=your_long_key_string_goes_here
+```
+
 ## Development server
 
 To start a local development server, run:

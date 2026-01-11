@@ -1,0 +1,52 @@
+
+<div class="min-h-screen bg-slate-900 p-8 text-white">
+  <div class="max-w-4xl mx-auto bg-slate-800 rounded-xl shadow-2xl border-4 border-slate-700 overflow-hidden">
+    
+    <div class="bg-gradient-to-b from-yellow-400 to-yellow-600 p-6 border-b-4 border-yellow-700">
+      <h2 class="text-3xl font-black text-blue-900 uppercase tracking-tight drop-shadow-md">
+        Guniea Guns Clan Members
+      </h2>
+    </div>
+
+    <div class="overflow-x-auto">
+      @if (members$ | async; as members) {
+        <table class="w-full text-left border-collapse">
+          <thead class="bg-slate-700 text-yellow-400 uppercase text-sm">
+            <tr>
+              <th class="p-4">#</th>
+              <th class="p-4">Player</th>
+              <th class="p-4">Role</th>
+              <th class="p-4 text-right">Trophies</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-700">
+            @for (member of members; track member.tag; let i = $index) {
+              <tr class="hover:bg-slate-700/50 transition-colors group">
+                <td class="p-4 font-bold text-slate-400">{{ i + 1 }}</td>
+                <td class="p-4">
+                  <div class="font-bold text-white group-hover:text-yellow-400">{{ member.name }}</div>
+                  <div class="text-xs text-slate-500">{{ member.tag }}</div>
+                </td>
+                <td class="p-4">
+                  <span class="px-2 py-1 rounded-md bg-slate-900 text-xs font-semibold border border-slate-600">
+                    {{ member.role }}
+                  </span>
+                </td>
+                <td class="p-4 text-right font-black text-orange-400">
+                  <span class="flex items-center justify-end gap-1">
+                    {{ member.trophies }}
+                    <span class="text-lg">🏆</span>
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else if (errorMessage) {
+        <p class="text-red-500">{{ errorMessage }}</p>
+      } @else {
+        <p class="text-slate-400">Loading Royale Data...</p>
+      }
+    </div>
+  </div>
+</div>
