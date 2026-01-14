@@ -1,42 +1,61 @@
 
 <div class="min-h-screen bg-slate-900 p-8 text-white">
-  <div class="max-w-4xl mx-auto bg-slate-800 rounded-xl shadow-2xl border-4 border-slate-700 overflow-hidden">
+  <div class="max-w-full mx-auto bg-slate-800 rounded-xl shadow-2xl border-4 border-slate-700 overflow-hidden">
     
-    <div class="bg-gradient-to-b from-yellow-400 to-yellow-600 p-6 border-b-4 border-yellow-700">
+    <div class="bg-linear-to-b from-yellow-400 to-yellow-600 p-2 border-b-4 border-yellow-700">
       <h2 class="text-3xl font-black text-blue-900 uppercase tracking-tight drop-shadow-md">
-        Guniea Guns Clan Members
+        Guinea Guns:
+        @if (members$ | async; as members) {
+          {{ members.length + " / 50" }}
+        } @else {
+          Loading...
+        }
       </h2>
     </div>
 
-    <div class="overflow-x-auto">
+    <div class="overflow-auto">
       @if (members$ | async; as members) {
         <table class="w-full text-left border-collapse">
-          <thead class="bg-slate-700 text-yellow-400 uppercase text-sm">
+          <thead class="sticky top-0 z-10 table-fixed bg-slate-700 text-yellow-400 uppercase text-sm">
             <tr>
-              <th class="p-4">#</th>
-              <th class="p-4">Player</th>
-              <th class="p-4">Role</th>
-              <th class="p-4 text-right">Trophies</th>
+              <th class="w-5 px-2 text-right">#</th>
+              <th class="w-5 px-2 text-center">Role</th>
+              <th class="px-2">Player</th>
+              <th class="w-28 px-2 text-right">Trophies</th>
+              <th class="w-8 px-2 text-right">Donations</th>
+              <th class="w-20 px-2 text-right" title="Current War">W</th>
+              <th class="w-20 px-2 text-right" title="Last War">W -1</th>
+              <th class="w-20 px-2 text-right" title="Last Last War">W -2</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-700">
             @for (member of members; track member.tag; let i = $index) {
               <tr class="hover:bg-slate-700/50 transition-colors group">
-                <td class="p-4 font-bold text-slate-400">{{ i + 1 }}</td>
-                <td class="p-4">
-                  <div class="font-bold text-white group-hover:text-yellow-400">{{ member.name }}</div>
-                  <div class="text-xs text-slate-500">{{ member.tag }}</div>
-                </td>
-                <td class="p-4">
-                  <span class="px-2 py-1 rounded-md bg-slate-900 text-xs font-semibold border border-slate-600">
-                    {{ member.role }}
+                <td class="px-2 text-right font-bold text-slate-400">{{ i + 1 }}</td>
+                <td class="px-2 text-center">
+                  <span class="px-2 py-0 rounded-md bg-slate-900 text-sm font-semibold border border-slate-600 font-mono">
+                    {{ member.roleCode }}
                   </span>
                 </td>
-                <td class="p-4 text-right font-black text-orange-400">
-                  <span class="flex items-center justify-end gap-1">
-                    {{ member.trophies }}
-                    <span class="text-lg">🏆</span>
-                  </span>
+                <td class="px-2">
+                  <span class="font-bold text-white group-hover:text-yellow-400">{{ member.name }}</span>
+                  &nbsp;
+                  <span class="text-xs text-slate-500">{{ member.tag }}</span>
+                </td>
+                <td class="px-2 text-right">
+                  {{ member.trophies }}
+                </td>
+                <td class="px-2 text-right">
+                  {{ member.donations }}
+                </td>
+                <td class="px-2 text-right">
+                  {{ member.currentWar?.fame }}
+                </td>
+                <td class="px-2 text-right">
+                  {{ member.lastWar?.fame }}
+                </td>
+                <td class="px-2 text-right">
+                  {{ member.lastLastWar?.fame }}
                 </td>
               </tr>
             }
