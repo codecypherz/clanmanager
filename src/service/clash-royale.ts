@@ -50,6 +50,11 @@ export class ClashRoyaleService {
           currentWar: currentParticipants.find(p => p.tag === member.tag),
           lastWar: lastWarParticipants.find(p => p.tag === member.tag),
           lastLastWar: lastLastWarParticipants.find(p => p.tag === member.tag)
+        // After all the data is collected, perform additional derivatives
+        })).map(member => ({
+          ...member,
+          shouldKick: this.shouldKick(member),
+          shouldNudge: this.shouldNudge(member),
         }));
       })
     );
@@ -74,6 +79,18 @@ export class ClashRoyaleService {
       default:
         return role;
     }
+  }
+
+  shouldKick(member: ClanMember): boolean {
+    return member.lastWar?.fame == 0 || member.lastLastWar?.fame == 0;
+  }
+
+  shouldNudge(member: ClanMember): boolean {
+    // Only suggest nudges if it's Friday, Saturday, or Sunday
+    if ([5, 6, 0].includes(new Date().getDay())) {
+      return member.currentWar?.fame == 0;
+    }
+    return false;
   }
 }
 

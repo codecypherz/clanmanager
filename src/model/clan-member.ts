@@ -6,6 +6,8 @@
 export interface ClanMember {
   tag: string;
   name: string;
+  shouldKick: boolean;
+  shouldNudge: boolean;
   role: string;
   roleCode: string;
   lastSeen: string;

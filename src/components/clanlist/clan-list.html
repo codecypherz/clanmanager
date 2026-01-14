@@ -2,7 +2,7 @@
 <div class="min-h-screen bg-slate-900 p-8 text-white">
   <div class="max-w-full mx-auto bg-slate-800 rounded-xl shadow-2xl border-4 border-slate-700 overflow-hidden">
     
-    <div class="bg-linear-to-b from-yellow-400 to-yellow-600 p-2 border-b-4 border-yellow-700">
+    <div class="bg-linear-to-b from-yellow-400 to-yellow-600 px-2 py-1 border-b-4 border-yellow-700">
       <h2 class="text-3xl font-black text-blue-900 uppercase tracking-tight drop-shadow-md">
         Guinea Guns:
         @if (members$ | async; as members) {
@@ -30,7 +30,7 @@
           </thead>
           <tbody class="divide-y divide-slate-700">
             @for (member of members; track member.tag; let i = $index) {
-              <tr class="hover:bg-slate-700/50 transition-colors group">
+              <tr class="hover:bg-slate-700/50 transition-colors group" [class.bg-orange-900]="member.shouldKick" [class.bg-yellow-900]="member.shouldNudge">
                 <td class="px-2 text-right font-bold text-slate-400">{{ i + 1 }}</td>
                 <td class="px-2 text-center">
                   <span class="px-2 py-0 rounded-md bg-slate-900 text-sm font-semibold border border-slate-600 font-mono">
