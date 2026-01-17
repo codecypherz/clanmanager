@@ -64,10 +64,6 @@ export class ClashRoyaleService {
           shouldNudge: this.shouldNudge(member),
         }));
 
-        // Save the newly fetched data.
-        // Calling "subscribe" ensures the Observable is invoked.
-        this.snapshotService.saveSnapshot(clanTag, currentMembers).subscribe();
-
         const historicalMembers : ClanMember[] = this.getHistoricalMembers(currentMembers, allSnapshots);
 
         // Make some additional calculations for all current and historical members.
@@ -76,6 +72,11 @@ export class ClashRoyaleService {
           member.joinCount = this.computeJoinCount(member, allSnapshots);
         }
 
+        // Save the newly fetched data.
+        // Calling "subscribe" ensures the Observable is invoked.
+        this.snapshotService.saveSnapshot(clanTag, currentMembers).subscribe();
+
+        // Return the final ClanResult.
         return {
           currentMemberCount: currentMembers.length,
           allMembers: allMembers
@@ -123,20 +124,31 @@ export class ClashRoyaleService {
   }
 
   computeJoinCount(member: ClanMember, allSnapshots: ClanSnapshot[]): number {
+    if (allSnapshots.length == 0) {
+      // No history, therefore the member is current.
+      return 1;
+    }
+    // Default for current members
     var joinCount = 1;
-    var membership = true;
+    var lastIsMember = true;
+    // Default for historical members
+    if (member.historical) {
+      joinCount = 0;
+      lastIsMember = false;
+    }
+    
     // This walks backward in time.
     for (const snapshot of allSnapshots) {
       var isMember = this.isMember(member.tag, snapshot);
-      if (membership == isMember) {
+      if (lastIsMember == isMember) {
         // No change detected
         continue;
       }
-      if (!membership && isMember) {
+      if (!lastIsMember && isMember) {
         // Detected a previous join
         joinCount++;
       }
-      membership = isMember;
+      lastIsMember = isMember;
     }
     return joinCount;
   }
