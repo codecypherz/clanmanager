@@ -5,6 +5,7 @@ import { ClanMember, ClanResult, ClanSnapshot, WarParticipant } from '../model/c
 import { environment } from '../environments/environment';
 import { map } from 'rxjs/operators';
 import { SnapshotService } from './snapshot-service';
+import { KickCountService } from './kick-count-service';
 
 const apiKey = import.meta.env.NG_APP_CLASH_API_KEY;
 
@@ -23,7 +24,8 @@ export class ClashRoyaleService {
 
   constructor(
     private http: HttpClient,
-    private snapshotService: SnapshotService) {}
+    private snapshotService: SnapshotService,
+    private kickCountService: KickCountService) {}
 
   getClanMembers(clanTag: string): Observable<ClanResult> {
     // Clan tags in the URL must be URL-encoded (replace # with %23)
@@ -70,6 +72,7 @@ export class ClashRoyaleService {
         const allMembers: ClanMember[] = currentMembers.concat(historicalMembers);
         for (const member of allMembers) {
           member.joinCount = this.computeJoinCount(member, allSnapshots);
+          member.kickCount = this.kickCountService.getKickCount(member.tag);
         }
 
         // Save the newly fetched data.

@@ -1,6 +1,6 @@
 
 <div class="min-h-screen bg-slate-900 p-8 text-white">
-  <div class="max-w-3xl mx-auto bg-slate-800 rounded-xl shadow-2xl border-4 border-slate-700 overflow-hidden">
+  <div class="max-w-4xl mx-auto bg-slate-800 rounded-xl shadow-2xl border-4 border-slate-700 overflow-hidden">
     
     <div class="bg-linear-to-b from-yellow-400 to-yellow-600 px-2 py-1 border-b-4 border-yellow-700">
       <h2 class="text-3xl font-black text-blue-900 uppercase tracking-tight drop-shadow-md">
@@ -22,8 +22,9 @@
               <th class="w-5 px-2 text-center">Role</th>
               <th class="w-20 px-2 text-right">Trophies</th>
               <th class="px-2">Player</th>
+              <th class="w-5 px-2 text-center" title="Joins">Joins</th>
+              <th class="w-16 px-2 text-center" title="Kicks">Kicks</th>
               <th class="w-5 px-2 text-right" title="Donations">Don</th>
-              <th class="w-5 px-2 text-right" title="Joins">Joins</th>
               <th class="w-20 px-2 text-right" title="Current War">W</th>
               <th class="w-20 px-2 text-right" title="Last War">W -1</th>
               <th class="w-20 px-2 text-right" title="Last Last War">W -2</th>
@@ -58,11 +59,21 @@
                     {{ member.tag }}
                   </span>
                 </td>
-                <td class="px-2 text-right">
-                  {{ member.donations }}
+                <td class="px-2 text-center">
+                  {{ member.joinCount }}
+                </td>
+                <td class="px-2 text-center">
+                  <input 
+                    type="number" 
+                    min="0"
+                    step="1"
+                    [value]="member.kickCount"
+                    (change)="updateKickCount(member, $event)"
+                    class="w-12 bg-slate-900 border border-slate-600 rounded text-center text-yellow-400 focus:border-yellow-500 outline-hidden"
+                  />
                 </td>
                 <td class="px-2 text-right">
-                  {{ member.joinCount }}
+                  {{ member.donations }}
                 </td>
                 <td class="px-2 text-right">
                   {{ member.currentWar?.fame }}
