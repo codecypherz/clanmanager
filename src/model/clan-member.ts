@@ -3,13 +3,17 @@
 //
 // See https://developer.clashroyale.com/#/documentation for more.
 //
+
+export interface ClanResult {
+  currentMemberCount: number;
+  allMembers: ClanMember[];
+}
+
 export interface ClanMember {
+  // Fields coming directly from the API
   tag: string;
   name: string;
-  shouldKick: boolean;
-  shouldNudge: boolean;
   role: string;
-  roleCode: string;
   lastSeen: string;
   expLevel: number;
   trophies: number;
@@ -21,6 +25,20 @@ export interface ClanMember {
   currentWar?: WarParticipant;
   lastWar?: WarParticipant;
   lastLastWar?: WarParticipant;
+
+  // Derivative fields
+  shouldKick: boolean;
+  shouldNudge: boolean;
+  roleCode: string;
+  joinCount: number;
+  historical: boolean;
+
+  // Fields set with human input
+  kickCount: number;
+
+  // Fields set for historical members
+  // e.g. historical=true
+  snapshotTimestamp?: Date;
 }
 
 export interface WarParticipant {
@@ -31,4 +49,10 @@ export interface WarParticipant {
   boatAttacks: number;
   decksUsed: number;
   decksUsedToday: number;
+}
+
+export interface ClanSnapshot {
+  clanTag: string;
+  timestamp: Date;
+  members: ClanMember[];
 }

@@ -1,12 +1,12 @@
 
 <div class="min-h-screen bg-slate-900 p-8 text-white">
-  <div class="max-w-full mx-auto bg-slate-800 rounded-xl shadow-2xl border-4 border-slate-700 overflow-hidden">
+  <div class="max-w-3xl mx-auto bg-slate-800 rounded-xl shadow-2xl border-4 border-slate-700 overflow-hidden">
     
     <div class="bg-linear-to-b from-yellow-400 to-yellow-600 px-2 py-1 border-b-4 border-yellow-700">
       <h2 class="text-3xl font-black text-blue-900 uppercase tracking-tight drop-shadow-md">
         Guinea Guns:
-        @if (members$ | async; as members) {
-          {{ members.length + " / 50" }}
+        @if (clanResult$ | async; as clanResult) {
+          {{ clanResult.currentMemberCount + " / 50" }}
         } @else {
           Loading...
         }
@@ -14,39 +14,55 @@
     </div>
 
     <div class="overflow-auto">
-      @if (members$ | async; as members) {
+      @if (clanResult$ | async; as clanResult) {
         <table class="w-full text-left border-collapse">
           <thead class="sticky top-0 z-10 table-fixed bg-slate-700 text-yellow-400 uppercase text-sm">
             <tr>
               <th class="w-5 px-2 text-right">#</th>
               <th class="w-5 px-2 text-center">Role</th>
+              <th class="w-20 px-2 text-right">Trophies</th>
               <th class="px-2">Player</th>
-              <th class="w-28 px-2 text-right">Trophies</th>
-              <th class="w-8 px-2 text-right">Donations</th>
+              <th class="w-5 px-2 text-right" title="Donations">Don</th>
+              <th class="w-5 px-2 text-right" title="Joins">Joins</th>
               <th class="w-20 px-2 text-right" title="Current War">W</th>
               <th class="w-20 px-2 text-right" title="Last War">W -1</th>
               <th class="w-20 px-2 text-right" title="Last Last War">W -2</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-700">
-            @for (member of members; track member.tag; let i = $index) {
-              <tr class="hover:bg-slate-700/50 transition-colors group" [class.bg-orange-900]="member.shouldKick" [class.bg-yellow-900]="member.shouldNudge">
-                <td class="px-2 text-right font-bold text-slate-400">{{ i + 1 }}</td>
+            @for (member of clanResult.allMembers; track member.tag; let i = $index) {
+              <tr class="hover:bg-slate-700/50 transition-colors group"
+                  [class.bg-gray-700]="member.historical"
+                  [class.bg-orange-900]="member.shouldKick"
+                  [class.bg-yellow-900]="member.shouldNudge">
+                <td class="px-2 text-right font-bold text-slate-400">
+                  @if (!member.historical) {
+                    {{ i + 1 }}
+                  }
+                </td>
                 <td class="px-2 text-center">
                   <span class="px-2 py-0 rounded-md bg-slate-900 text-sm font-semibold border border-slate-600 font-mono">
                     {{ member.roleCode }}
                   </span>
                 </td>
-                <td class="px-2">
-                  <span class="font-bold text-white group-hover:text-yellow-400">{{ member.name }}</span>
-                  &nbsp;
-                  <span class="text-xs text-slate-500">{{ member.tag }}</span>
-                </td>
                 <td class="px-2 text-right">
                   {{ member.trophies }}
                 </td>
+                <td class="px-2">
+                  <span class="font-bold text-white group-hover:text-yellow-400"
+                      [class.text-gray-400]="member.historical">
+                    {{ member.name }}
+                  </span>
+                  &nbsp;
+                  <span class="text-xs text-slate-500">
+                    {{ member.tag }}
+                  </span>
+                </td>
                 <td class="px-2 text-right">
                   {{ member.donations }}
+                </td>
+                <td class="px-2 text-right">
+                  {{ member.joinCount }}
                 </td>
                 <td class="px-2 text-right">
                   {{ member.currentWar?.fame }}
