@@ -193,6 +193,8 @@ export class ClashRoyaleService {
         var historicalMember = snapshotMember;
         historicalMember.historical = true;
         historicalMember.snapshotTimestamp = snapshot.timestamp;
+        historicalMember.shouldKick = false;
+        historicalMember.shouldNudge = false;
         historicalMembers.push(historicalMember);
         historicalIds.add(playerId);
       }
