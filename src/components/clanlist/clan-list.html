@@ -32,7 +32,7 @@
           </thead>
           <tbody class="divide-y divide-slate-700">
             @for (member of clanResult.allMembers; track member.tag; let i = $index) {
-              <tr class="hover:bg-slate-700/50 transition-colors group"
+              <tr class="hover:opacity-80 transition-colors group"
                   [class.bg-gray-700]="member.historical"
                   [class.bg-orange-900]="member.shouldKick"
                   [class.bg-yellow-900]="member.shouldNudge">
