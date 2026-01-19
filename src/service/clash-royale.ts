@@ -69,6 +69,7 @@ export class ClashRoyaleService {
         const allMembers: ClanMember[] = currentMembers.concat(historicalMembers);
         for (const member of allMembers) {
           this.setHistoricalMembershipData(member, allSnapshots);
+          member.newlyJoined = this.getTimeSinceJoin(member) < this.NEW_JOIN_GRACE_PERIOD_MS;
           member.kickCount = this.kickCountService.getKickCount(member.tag);
           member.shouldKick = this.shouldKick(member);
           member.shouldNudge = this.shouldNudge(member);
@@ -134,6 +135,14 @@ export class ClashRoyaleService {
       return member.currentWar?.fame == 0;
     }
     return member.lastWar?.fame == 0 || member.lastLastWar?.fame == 0;
+  }
+
+  /**
+   * @param member The member to check
+   * @returns The duration, in milliseconds, since join detected
+   */
+  private getTimeSinceJoin(member: ClanMember): number {
+    return Date.now() - new Date(member.earliestMembershipTimestamp).getTime();
   }
 
   private shouldNudge(member: ClanMember): boolean {

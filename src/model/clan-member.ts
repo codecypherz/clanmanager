@@ -32,6 +32,7 @@ export interface ClanMember {
   roleCode: string;
   joinCount: number;
   earliestMembershipTimestamp: Date;
+  newlyJoined: boolean;
   historical: boolean;
 
   // Fields set with human input

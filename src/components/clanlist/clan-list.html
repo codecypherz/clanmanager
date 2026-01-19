@@ -36,7 +36,8 @@
               <tr class="hover:opacity-80 transition-colors group"
                   [class.bg-gray-700]="member.historical"
                   [class.bg-orange-900]="member.shouldKick"
-                  [class.bg-yellow-900]="member.shouldNudge">
+                  [class.bg-yellow-900]="member.shouldNudge"
+                  [class.bg-green-900]="member.newlyJoined">
                 <td class="px-2 text-right font-bold text-slate-400">
                   @if (!member.historical) {
                     {{ i + 1 }}
