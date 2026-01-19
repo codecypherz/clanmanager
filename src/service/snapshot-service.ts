@@ -5,8 +5,9 @@ import { ClanMember, ClanSnapshot } from '../model/clan-member';
 @Injectable({ providedIn: 'root' })
 export class SnapshotService {
 
-  private readonly MAX_SNAPSHOTS = 100; // Minimum of 4 days of history at 1 hour MIN_TIME
-  private readonly MIN_TIME_BETWEEN_SNAPSHOTS_MS = 1000 * 60 * 60; // 1 hour
+  // Min total history = (100 snaps * 4 hours) / 24 hours = 16.7 days.
+  private readonly MAX_SNAPSHOTS = 100;
+  private readonly MIN_TIME_BETWEEN_SNAPSHOTS_MS = 1000 * 60 * 60 * 4; // 4 hours
 
   /**
    * Gets the full snapshot history for the clan.
