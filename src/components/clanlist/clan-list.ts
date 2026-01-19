@@ -7,6 +7,18 @@ import { KickCountService } from '../../service/kick-count-service';
 
 const GUINEA_GUNS_TAG = '#QJCLJ8LR';
 
+interface Unit {
+  label: string;
+  ms: number;
+}
+
+const UNITS: Unit[] = [
+  { label: 'day', ms: 86400000 },
+  { label: 'hour', ms: 3600000 },
+  { label: 'minute', ms: 60000 },
+  { label: 'second', ms: 1000 },
+];
+
 @Component({
   selector: 'app-clan-list',
   templateUrl: './clan-list.html',
@@ -33,6 +45,7 @@ export class ClanListComponent implements OnInit {
 
   clanResult$: Observable<ClanResult> | undefined;
   errorMessage: string = '';
+  lastFetch: Date | undefined;
 
   constructor(
     private crService: ClashRoyaleService,
@@ -42,8 +55,16 @@ export class ClanListComponent implements OnInit {
     // Refresh the data for the view periodically, but also fetch immediately.
     this.clanResult$ = timer(0, this.REFRESH_INTERVAL_MS).pipe(
       // switchMap cancels the previous request if it's still pending
-      switchMap(() => this.crService.getClanMembers(GUINEA_GUNS_TAG)),
+      switchMap(() => {
+        this.lastFetch = new Date();
+        return this.crService.getClanMembers(GUINEA_GUNS_TAG);
+      }),
       shareReplay(1));
+  }
+
+  getFreshnessTooltip(clanResult: ClanResult) {
+    return "Last fetch: " + this.DATE_TOOLTIP_FORMAT.format(this.lastFetch) +
+        "\nData window: " + this.formatDuration(clanResult.dataWindowMs);
   }
 
   getJoinDate(timestamp: Date): string {
@@ -59,5 +80,22 @@ export class ClanListComponent implements OnInit {
     const value = parseInt(input.value, 10) || 0;
     this.kickCountService.setKickCount(member.tag, value);
     member.kickCount = value; // Update local UI state
+  }
+
+  private formatDuration(ms: number): string {
+    if (ms < 1000) return `${ms}ms`;
+
+    const parts: string[] = [];
+    let remainingMs = ms;
+
+    for (const { label, ms: unitMs } of UNITS) {
+      const count = Math.floor(remainingMs / unitMs);
+      if (count > 0) {
+        parts.push(`${count} ${label}${count !== 1 ? 's' : ''}`);
+        remainingMs %= unitMs;
+      }
+    }
+
+    return parts.join(', ');
   }
 }

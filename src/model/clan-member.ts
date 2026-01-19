@@ -7,6 +7,7 @@
 export interface ClanResult {
   currentMemberCount: number;
   allMembers: ClanMember[];
+  dataWindowMs: number; // The time between last fetch and oldest snapshot.
 }
 
 export interface ClanMember {

@@ -4,9 +4,11 @@
     
     <div class="bg-linear-to-b from-yellow-400 to-yellow-600 px-2 py-1 border-b-4 border-yellow-700">
       <h2 class="text-3xl font-black text-blue-900 uppercase tracking-tight drop-shadow-md">
-        Guinea Guns:
         @if (clanResult$ | async; as clanResult) {
-          {{ clanResult.currentMemberCount + " / 50" }}
+          <span [title]="getFreshnessTooltip(clanResult)">
+            Guinea Guns:
+            {{ clanResult.currentMemberCount + " / 50" }}
+          </span>
         } @else {
           Loading...
         }

@@ -83,7 +83,8 @@ export class ClashRoyaleService {
         // Return the final ClanResult.
         return {
           currentMemberCount: currentMembers.length,
-          allMembers: allMembers
+          allMembers: allMembers,
+          dataWindowMs: this.calculateDataWindow(allSnapshots)
         };
       })
     );
@@ -93,6 +94,16 @@ export class ClashRoyaleService {
     return new HttpHeaders({
       'Authorization': `Bearer ${this.API_KEY}`
     });
+  }
+
+  private calculateDataWindow(allSnapshots: ClanSnapshot[]): number {
+    if (allSnapshots.length == 0) {
+      return 0;
+    }
+    const now = new Date();
+    const oldestSnapshot = allSnapshots[allSnapshots.length - 1];
+    const oldestTime = new Date(oldestSnapshot.timestamp);
+    return now.getTime() - oldestTime.getTime();
   }
 
   private getRoleCode(role: string): string {
@@ -161,7 +172,7 @@ export class ClashRoyaleService {
       let fame = war?.fame || 0;
       return fame <= 400;
     }
-    
+
     return false;
   }
 
