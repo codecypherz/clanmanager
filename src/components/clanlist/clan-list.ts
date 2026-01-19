@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ClashRoyaleService } from '../../service/clash-royale';
 import { ClanMember, ClanResult } from '../../model/clan-member';
-import { Observable, catchError, map, of, identity } from 'rxjs';
+import { Observable, timer, switchMap, shareReplay } from 'rxjs';
 import { AsyncPipe } from '@angular/common';
 import { KickCountService } from '../../service/kick-count-service';
 
@@ -14,13 +14,13 @@ const GUINEA_GUNS_TAG = '#QJCLJ8LR';
 })
 export class ClanListComponent implements OnInit {
 
-  private DATE_FORMAT = new Intl.DateTimeFormat(
+  private readonly DATE_FORMAT = new Intl.DateTimeFormat(
     'en-US', {
       month: 'numeric',
       day: 'numeric'
     });
 
-  private DATE_TOOLTIP_FORMAT = new Intl.DateTimeFormat(
+  private readonly DATE_TOOLTIP_FORMAT = new Intl.DateTimeFormat(
     'en-US', {
       month: 'numeric',
       day: 'numeric',
@@ -28,6 +28,8 @@ export class ClanListComponent implements OnInit {
       minute: 'numeric',
       hour12: true
     });
+
+  private readonly REFRESH_INTERVAL_MS = 1000 * 60 * 60; // 1 hour.
 
   clanResult$: Observable<ClanResult> | undefined;
   errorMessage: string = '';
@@ -37,15 +39,11 @@ export class ClanListComponent implements OnInit {
     private kickCountService: KickCountService) {}
 
   ngOnInit(): void {
-
-    this.clanResult$ = this.crService.getClanMembers(GUINEA_GUNS_TAG).pipe(
-      identity,
-      catchError(err => {
-        this.errorMessage = 'Failed to load clan members.';
-        console.error(err);
-        return of(); // Return an empty array on error
-      })
-    );
+    // Refresh the data for the view periodically, but also fetch immediately.
+    this.clanResult$ = timer(0, this.REFRESH_INTERVAL_MS).pipe(
+      // switchMap cancels the previous request if it's still pending
+      switchMap(() => this.crService.getClanMembers(GUINEA_GUNS_TAG)),
+      shareReplay(1));
   }
 
   getJoinDate(timestamp: Date): string {
