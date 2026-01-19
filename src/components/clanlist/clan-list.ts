@@ -13,6 +13,13 @@ const GUINEA_GUNS_TAG = '#QJCLJ8LR';
   imports: [AsyncPipe]
 })
 export class ClanListComponent implements OnInit {
+
+  private DATE_FORMAT = new Intl.DateTimeFormat(
+    'en-US', {
+      month: '2-digit',
+      day: '2-digit'
+    });
+
   clanResult$: Observable<ClanResult> | undefined;
   errorMessage: string = '';
 
@@ -30,6 +37,10 @@ export class ClanListComponent implements OnInit {
         return of(); // Return an empty array on error
       })
     );
+  }
+
+  getJoinDate(timestamp: Date): string {
+    return this.DATE_FORMAT.format(new Date(timestamp));
   }
 
   updateKickCount(member: ClanMember, event: Event) {

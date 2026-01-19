@@ -23,6 +23,7 @@
               <th class="w-20 px-2 text-right">Trophies</th>
               <th class="px-2">Player</th>
               <th class="w-5 px-2 text-center" title="Joins">Joins</th>
+              <th class="w-5 px-2 text-center" title="Earliest known membership">Join Date</th>
               <th class="w-16 px-2 text-center" title="Kicks">Kicks</th>
               <th class="w-5 px-2 text-right" title="Donations">Don</th>
               <th class="w-20 px-2 text-right" title="Current War">W</th>
@@ -61,6 +62,9 @@
                 </td>
                 <td class="px-2 text-center">
                   {{ member.joinCount }}
+                </td>
+                <td class="px-2 text-center">
+                  {{ getJoinDate(member.earliestMembershipTimestamp) }}
                 </td>
                 <td class="px-2 text-center">
                   <input 

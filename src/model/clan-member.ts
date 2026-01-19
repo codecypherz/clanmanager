@@ -31,6 +31,7 @@ export interface ClanMember {
   shouldNudge: boolean;
   roleCode: string;
   joinCount: number;
+  earliestMembershipTimestamp: Date;
   historical: boolean;
 
   // Fields set with human input

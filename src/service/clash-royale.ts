@@ -71,7 +71,7 @@ export class ClashRoyaleService {
         // Make some additional calculations for all current and historical members.
         const allMembers: ClanMember[] = currentMembers.concat(historicalMembers);
         for (const member of allMembers) {
-          member.joinCount = this.computeJoinCount(member, allSnapshots);
+          this.setHistoricalMembershipData(member, allSnapshots);
           member.kickCount = this.kickCountService.getKickCount(member.tag);
         }
 
@@ -136,14 +136,21 @@ export class ClashRoyaleService {
     return false;
   }
 
-  private computeJoinCount(member: ClanMember, allSnapshots: ClanSnapshot[]): number {
+  private setHistoricalMembershipData(member: ClanMember, allSnapshots: ClanSnapshot[]) {
+    // Default timestamp for all cases.
+    var earliestMembershipTimestamp = new Date();
+
     if (allSnapshots.length == 0) {
       // No history, therefore the member is current.
-      return 1;
+      member.joinCount = 1;
+      member.earliestMembershipTimestamp = earliestMembershipTimestamp;
+      return;
     }
+
     // Default for current members
     var joinCount = 1;
     var lastIsMember = true;
+
     // Default for historical members
     if (member.historical) {
       joinCount = 0;
@@ -153,6 +160,13 @@ export class ClashRoyaleService {
     // This walks backward in time.
     for (const snapshot of allSnapshots) {
       var isMember = this.isMember(member.tag, snapshot);
+
+      // Keep the oldest timestamp for which we detected membership as the join time.
+      if (isMember) {
+        earliestMembershipTimestamp = new Date(snapshot.timestamp);
+      }
+      
+      // Now determine if join count should be incremented.
       if (lastIsMember == isMember) {
         // No change detected
         continue;
@@ -163,7 +177,9 @@ export class ClashRoyaleService {
       }
       lastIsMember = isMember;
     }
-    return joinCount;
+
+    member.joinCount = joinCount;
+    member.earliestMembershipTimestamp = earliestMembershipTimestamp;
   }
 
   private isMember(tag: string, snapshot: ClanSnapshot): boolean {
