@@ -16,8 +16,17 @@ export class ClanListComponent implements OnInit {
 
   private DATE_FORMAT = new Intl.DateTimeFormat(
     'en-US', {
-      month: '2-digit',
-      day: '2-digit'
+      month: 'numeric',
+      day: 'numeric'
+    });
+
+  private DATE_TOOLTIP_FORMAT = new Intl.DateTimeFormat(
+    'en-US', {
+      month: 'numeric',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true
     });
 
   clanResult$: Observable<ClanResult> | undefined;
@@ -41,6 +50,10 @@ export class ClanListComponent implements OnInit {
 
   getJoinDate(timestamp: Date): string {
     return this.DATE_FORMAT.format(new Date(timestamp));
+  }
+
+  getJoinDateTooltip(timestamp: Date): string {
+    return this.DATE_TOOLTIP_FORMAT.format(new Date(timestamp));
   }
 
   updateKickCount(member: ClanMember, event: Event) {

@@ -63,7 +63,7 @@
                 <td class="px-2 text-center">
                   {{ member.joinCount }}
                 </td>
-                <td class="px-2 text-center">
+                <td class="px-2 text-center" [title]="getJoinDateTooltip(member.earliestMembershipTimestamp)">
                   {{ getJoinDate(member.earliestMembershipTimestamp) }}
                 </td>
                 <td class="px-2 text-center">

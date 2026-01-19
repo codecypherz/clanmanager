@@ -7,8 +7,6 @@ import { map } from 'rxjs/operators';
 import { SnapshotService } from './snapshot-service';
 import { KickCountService } from './kick-count-service';
 
-const apiKey = import.meta.env.NG_APP_CLASH_API_KEY;
-
 // The endpoints invoked by this service and the responses mapped come
 // directly from the service defitions of the Clash Royale API.
 //
@@ -20,6 +18,9 @@ const apiKey = import.meta.env.NG_APP_CLASH_API_KEY;
 })
 export class ClashRoyaleService {
   
+  private readonly NEW_JOIN_GRACE_PERIOD_MS = 1000 * 60 * 60 * 24; // 24 hours
+  private readonly API_KEY = import.meta.env.NG_APP_CLASH_API_KEY;
+
   private baseUrl = environment.baseClashRoyaleApiUrl;
 
   constructor(
@@ -60,10 +61,6 @@ export class ClashRoyaleService {
           lastLastWar: this.findWarParticipant(member, lastLastWarParticipants),
           historical: false,
         // After all the data is collected, perform additional derivative calculations
-        })).map(member => ({
-          ...member,
-          shouldKick: this.shouldKick(member),
-          shouldNudge: this.shouldNudge(member),
         }));
 
         const historicalMembers : ClanMember[] = this.getHistoricalMembers(currentMembers, allSnapshots);
@@ -73,6 +70,8 @@ export class ClashRoyaleService {
         for (const member of allMembers) {
           this.setHistoricalMembershipData(member, allSnapshots);
           member.kickCount = this.kickCountService.getKickCount(member.tag);
+          member.shouldKick = this.shouldKick(member);
+          member.shouldNudge = this.shouldNudge(member);
         }
 
         // Save the newly fetched data.
@@ -90,7 +89,7 @@ export class ClashRoyaleService {
 
   private getHeaders(): HttpHeaders {
     return new HttpHeaders({
-      'Authorization': `Bearer ${apiKey}`
+      'Authorization': `Bearer ${this.API_KEY}`
     });
   }
 
@@ -120,6 +119,16 @@ export class ClashRoyaleService {
   }
 
   private shouldKick(member: ClanMember): boolean {
+    if (member.historical) {
+      return false; // Already not in the clan.
+    }
+
+    // Give new players a grace period.
+    const timeSinceJoin = Date.now() - new Date(member.earliestMembershipTimestamp).getTime();
+    if (timeSinceJoin < this.NEW_JOIN_GRACE_PERIOD_MS) {
+      return false;
+    }
+
     // Kick people who aren't doing the current or past wars.
     if ([5, 6, 0].includes(new Date().getDay())) {
       return member.currentWar?.fame == 0;
@@ -128,6 +137,10 @@ export class ClashRoyaleService {
   }
 
   private shouldNudge(member: ClanMember): boolean {
+    if (member.historical) {
+      return false; // Can't nudge someone that's not there!
+    }
+
     // Only suggest nudges if it's Thursday, Friday, Saturday, or Sunday
     // if ([4, 5, 6, 0].includes(new Date().getDay())) {
     //   const decksUsedToday = member.currentWar?.decksUsedToday || 0;
@@ -219,8 +232,6 @@ export class ClashRoyaleService {
         var historicalMember = snapshotMember;
         historicalMember.historical = true;
         historicalMember.snapshotTimestamp = snapshot.timestamp;
-        historicalMember.shouldKick = false;
-        historicalMember.shouldNudge = false;
         historicalMembers.push(historicalMember);
         historicalIds.add(playerId);
       }
