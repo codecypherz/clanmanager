@@ -55,9 +55,9 @@ export class ClashRoyaleService {
         const currentMembers : ClanMember[] = members.memberList.map(member => ({
           ...member,
           roleCode: this.getRoleCode(member.role),
-          currentWar: currentParticipants.find(p => p.tag === member.tag),
-          lastWar: lastWarParticipants.find(p => p.tag === member.tag),
-          lastLastWar: lastLastWarParticipants.find(p => p.tag === member.tag),
+          currentWar: this.isWarDay() ? this.findWarParticipant(member, currentParticipants) : undefined,
+          lastWar: this.findWarParticipant(member, lastWarParticipants),
+          lastLastWar: this.findWarParticipant(member, lastLastWarParticipants),
           historical: false,
         // After all the data is collected, perform additional derivative calculations
         })).map(member => ({
@@ -88,13 +88,13 @@ export class ClashRoyaleService {
     );
   }
 
-  getHeaders(): HttpHeaders {
+  private getHeaders(): HttpHeaders {
     return new HttpHeaders({
       'Authorization': `Bearer ${apiKey}`
     });
   }
 
-  getRoleCode(role: string): string {
+  private getRoleCode(role: string): string {
     switch(role) {
       case "leader":
         return "L";
@@ -109,7 +109,17 @@ export class ClashRoyaleService {
     }
   }
 
-  shouldKick(member: ClanMember): boolean {
+  private findWarParticipant(member: ClanMember, warParticipants: WarParticipant[]): WarParticipant|undefined {
+    return warParticipants.find(p => p.tag === member.tag);
+  }
+
+  private isWarDay(): boolean {
+    // Thursday == 4
+    // Sunday == 0
+    return [4, 5, 6, 0].includes(new Date().getDay());
+  }
+
+  private shouldKick(member: ClanMember): boolean {
     // Kick people who aren't doing the current or past wars.
     if ([5, 6, 0].includes(new Date().getDay())) {
       return member.currentWar?.fame == 0;
@@ -117,7 +127,7 @@ export class ClashRoyaleService {
     return member.lastWar?.fame == 0 || member.lastLastWar?.fame == 0;
   }
 
-  shouldNudge(member: ClanMember): boolean {
+  private shouldNudge(member: ClanMember): boolean {
     // Only suggest nudges if it's Thursday, Friday, Saturday, or Sunday
     // if ([4, 5, 6, 0].includes(new Date().getDay())) {
     //   const decksUsedToday = member.currentWar?.decksUsedToday || 0;
@@ -126,7 +136,7 @@ export class ClashRoyaleService {
     return false;
   }
 
-  computeJoinCount(member: ClanMember, allSnapshots: ClanSnapshot[]): number {
+  private computeJoinCount(member: ClanMember, allSnapshots: ClanSnapshot[]): number {
     if (allSnapshots.length == 0) {
       // No history, therefore the member is current.
       return 1;
@@ -156,7 +166,7 @@ export class ClashRoyaleService {
     return joinCount;
   }
 
-  isMember(tag: string, snapshot: ClanSnapshot): boolean {
+  private isMember(tag: string, snapshot: ClanSnapshot): boolean {
     for (const member of snapshot.members) {
       if (member.tag == tag) {
         return true;
@@ -165,7 +175,7 @@ export class ClashRoyaleService {
     return false;
   }
 
-  getHistoricalMembers(currentMembers: ClanMember[], allSnapshots: ClanSnapshot[]): ClanMember[] {
+  private getHistoricalMembers(currentMembers: ClanMember[], allSnapshots: ClanSnapshot[]): ClanMember[] {
     // Get the set of player IDs that are currently in the clan.
     const currentIds = new Set<string>();
     for (const currentMember of currentMembers) {
