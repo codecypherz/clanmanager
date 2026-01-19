@@ -19,6 +19,7 @@ import { KickCountService } from './kick-count-service';
 export class ClashRoyaleService {
   
   private readonly NEW_JOIN_GRACE_PERIOD_MS = 1000 * 60 * 60 * 24; // 24 hours
+  private readonly WAR_GRACE_PERIOD_MS = 1000 * 60 * 60 * 24; // 24 hours
   private readonly API_KEY = import.meta.env.NG_APP_CLASH_API_KEY;
 
   private baseUrl = environment.baseClashRoyaleApiUrl;
@@ -130,11 +131,69 @@ export class ClashRoyaleService {
       return false;
     }
 
-    // Kick people who aren't doing the current or past wars.
-    if ([5, 6, 0].includes(new Date().getDay())) {
-      return member.currentWar?.fame == 0;
+    // Kick if they didn't participate in war.
+    if (this.shouldKickForWar(member, 0, member.currentWar)) {
+      return true;
     }
-    return member.lastWar?.fame == 0 || member.lastLastWar?.fame == 0;
+    if (this.shouldKickForWar(member, 1, member.lastWar)) {
+      return true;
+    }
+    if (this.shouldKickForWar(member, 2, member.lastLastWar)) {
+      return true;
+    }
+
+    // Don't kick by default.
+    return false;
+  }
+
+  private shouldKickForWar(member: ClanMember, weekOffset: number, war: WarParticipant|undefined): boolean {
+    if (war == undefined) {
+      return false;
+    }
+
+    const now = new Date();
+    const warStart = this.getThursday(weekOffset);
+    let warEnd = new Date(warStart);
+    warEnd.setDate(warStart.getDate() + 4);
+    const joinTime = new Date(member.earliestMembershipTimestamp);
+
+    if (this.isAccountableForWar(warStart, warEnd, joinTime)) {
+      let fame = war?.fame || 0;
+      return fame <= 400;
+    }
+    
+    return false;
+  }
+
+  private isAccountableForWar(warStart: Date, warEnd: Date, joinTime: Date): boolean {
+    const now = new Date();
+    if ((now.getTime() - warStart.getTime()) < this.WAR_GRACE_PERIOD_MS) {
+      // No one is accountable within the war start grace period.
+      // This effectively only applies to the active war.
+      return false;
+    }
+
+    if (joinTime.getTime() > warEnd.getTime()) {
+      // The player joined after the war ended, so they are not accountable.
+      return false;
+    }
+
+    if (warStart.getTime() > joinTime.getTime()) {
+      // The war started after the player joined, so they are accountable.
+      return true;
+    }
+
+    if (joinTime.getTime() > warStart.getTime() &&
+        joinTime.getTime() < warEnd.getTime()) {
+      // The player joined in the middle of the war.
+      // They are accountable if they had enough time to participate.
+      if (warEnd.getTime() - joinTime.getTime() > this.WAR_GRACE_PERIOD_MS) {
+        return true;
+      }
+    }
+
+    // Not accountable by default.
+    return false;
   }
 
   /**
@@ -247,6 +306,29 @@ export class ClashRoyaleService {
     }
 
     return historicalMembers;
+  }
+
+  /**
+   * @param weekOffset 0 for this week, 1 for last week, 2 for last last week
+   * @returns The Thursday of interest
+   */
+  private getThursday(weekOffset: number): Date {
+    const now = new Date();
+    const currentDay = now.getDay();
+    const targetDay = 4; // Thursday
+
+    // Calculate days since the most recent Thursday
+    let daysSinceRecentThursday = (currentDay - targetDay) % 7;
+
+    const targetDate = new Date(now);
+    
+    // Use the offset to go further back in time
+    targetDate.setDate(now.getDate() - daysSinceRecentThursday - (7 * weekOffset));
+    
+    // Reset time to the beginning of the day
+    targetDate.setHours(0, 0, 0, 0);
+    
+    return targetDate;
   }
 }
 
