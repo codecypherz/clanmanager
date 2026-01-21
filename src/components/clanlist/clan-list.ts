@@ -64,6 +64,7 @@ export class ClanListComponent implements OnInit {
 
   getFreshnessTooltip(clanResult: ClanResult) {
     return "Last fetch: " + this.DATE_TOOLTIP_FORMAT.format(this.lastFetch) +
+        "\nLast snapshot: " + this.DATE_TOOLTIP_FORMAT.format(clanResult.lastSnapshotTime) +
         "\nData window: " + this.formatDuration(clanResult.dataWindowMs);
   }
 

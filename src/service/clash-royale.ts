@@ -84,6 +84,7 @@ export class ClashRoyaleService {
         return {
           currentMemberCount: currentMembers.length,
           allMembers: allMembers,
+          lastSnapshotTime: this.getLastSnapshotTime(allSnapshots),
           dataWindowMs: this.calculateDataWindow(allSnapshots)
         };
       })
@@ -94,6 +95,10 @@ export class ClashRoyaleService {
     return new HttpHeaders({
       'Authorization': `Bearer ${this.API_KEY}`
     });
+  }
+
+  private getLastSnapshotTime(allSnapshots: ClanSnapshot[]): Date|undefined {
+    return allSnapshots.length > 0 ? new Date(allSnapshots[0].timestamp) : undefined;
   }
 
   private calculateDataWindow(allSnapshots: ClanSnapshot[]): number {
