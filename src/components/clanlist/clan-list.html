@@ -1,6 +1,6 @@
 
 <div class="min-h-screen bg-slate-900 p-8 text-white">
-  <div class="max-w-4xl mx-auto bg-slate-800 rounded-xl shadow-2xl border-4 border-slate-700 overflow-hidden">
+  <div class="max-w-5xl mx-auto bg-slate-800 rounded-xl shadow-2xl border-4 border-slate-700 overflow-hidden">
     
     <div class="bg-linear-to-b from-yellow-400 to-yellow-600 px-2 py-1 border-b-4 border-yellow-700">
       <h2 class="text-3xl font-black text-blue-900 uppercase tracking-tight drop-shadow-md">
@@ -26,6 +26,7 @@
               <th class="px-2">Player</th>
               <th class="w-5 px-2 text-center" title="Joins">Joins</th>
               <th class="w-5 px-2 text-center" title="Earliest known membership">Join Date</th>
+              <th class="w-5 px-2 text-center" title="Last Seen">Last Seen</th>
               <th class="w-16 px-2 text-center" title="Kicks">Kicks</th>
               <th class="w-5 px-2 text-right" title="Donations">Don</th>
               <th class="w-20 px-2 text-right" title="Current War">W</th>
@@ -66,8 +67,11 @@
                 <td class="px-2 text-center">
                   {{ member.joinCount }}
                 </td>
-                <td class="px-2 text-center" [title]="getJoinDateTooltip(member.earliestMembershipTimestamp)">
-                  {{ getJoinDate(member.earliestMembershipTimestamp) }}
+                <td class="px-2 text-center" [title]="getJoinDateTooltip(member)">
+                  {{ getJoinDate(member) }}
+                </td>
+                <td class="px-2 text-center" [title]="getLastSeenTooltip(member)">
+                  {{ getLastSeen(member) }}
                 </td>
                 <td class="px-2 text-center">
                   <input 

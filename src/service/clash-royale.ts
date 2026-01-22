@@ -20,6 +20,7 @@ export class ClashRoyaleService {
   
   private readonly NEW_JOIN_GRACE_PERIOD_MS = 1000 * 60 * 60 * 24; // 24 hours
   private readonly WAR_GRACE_PERIOD_MS = 1000 * 60 * 60 * 24; // 24 hours
+  private readonly LAST_SEEN_GACE_PERIOD_MS = 1000 * 60 * 60 * 24 * 2.5; // 2.5 days
   private readonly API_KEY = import.meta.env.NG_APP_CLASH_API_KEY;
 
   private baseUrl = environment.baseClashRoyaleApiUrl;
@@ -70,6 +71,7 @@ export class ClashRoyaleService {
         const allMembers: ClanMember[] = currentMembers.concat(historicalMembers);
         for (const member of allMembers) {
           this.setHistoricalMembershipData(member, allSnapshots);
+          member.lastSeenParsed = this.parseLastSeen(member.lastSeen);
           member.newlyJoined = this.getTimeSinceJoin(member) < this.NEW_JOIN_GRACE_PERIOD_MS;
           member.kickCount = this.kickCountService.getKickCount(member.tag);
           member.shouldKick = this.shouldKick(member);
@@ -124,6 +126,14 @@ export class ClashRoyaleService {
       default:
         return role;
     }
+  }
+
+  private parseLastSeen(apiLastSeen: string): Date {
+    const parsed = apiLastSeen.replace(
+      /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})/,
+      '$1-$2-$3T$4:$5:$6'
+    );
+    return new Date(parsed);
   }
 
   private findWarParticipant(member: ClanMember, warParticipants: WarParticipant[]): WarParticipant|undefined {
@@ -223,6 +233,14 @@ export class ClashRoyaleService {
   private shouldNudge(member: ClanMember): boolean {
     if (member.historical) {
       return false; // Can't nudge someone that's not there!
+    }
+
+    // Nudge people who have been inactive for a bit.
+    const now = new Date();
+    const lastSeen = member.lastSeenParsed;
+    const diff = now.getTime() - lastSeen.getTime();
+    if (diff > this.LAST_SEEN_GACE_PERIOD_MS) {
+      return true;
     }
 
     // Only suggest nudges if it's Thursday, Friday, Saturday, or Sunday

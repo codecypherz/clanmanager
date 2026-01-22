@@ -68,12 +68,26 @@ export class ClanListComponent implements OnInit {
         "\nData window: " + this.formatDuration(clanResult.dataWindowMs);
   }
 
-  getJoinDate(timestamp: Date): string {
-    return this.DATE_FORMAT.format(new Date(timestamp));
+  getLastSeen(member: ClanMember): string {
+    return this.DATE_FORMAT.format(member.lastSeenParsed);
   }
 
-  getJoinDateTooltip(timestamp: Date): string {
-    return this.DATE_TOOLTIP_FORMAT.format(new Date(timestamp));
+  getLastSeenTooltip(member: ClanMember): string {
+    const now = new Date();
+    const lastSeen = member.lastSeenParsed;
+    const diff = now.getTime() - lastSeen.getTime();
+    return this.DATE_TOOLTIP_FORMAT.format(lastSeen) + " (" + this.formatDuration(diff) + " ago)";
+  }
+
+  getJoinDate(member: ClanMember): string {
+    return this.DATE_FORMAT.format(new Date(member.earliestMembershipTimestamp));
+  }
+
+  getJoinDateTooltip(member: ClanMember): string {
+    const now = new Date();
+    const joinDate = new Date(member.earliestMembershipTimestamp);
+    const diff = now.getTime() - joinDate.getTime();
+    return this.DATE_TOOLTIP_FORMAT.format(joinDate) + " (" + this.formatDuration(diff) + " ago)";
   }
 
   updateKickCount(member: ClanMember, event: Event) {

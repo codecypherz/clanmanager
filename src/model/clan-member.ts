@@ -31,6 +31,7 @@ export interface ClanMember {
   // Derivative fields
   shouldKick: boolean;
   shouldNudge: boolean;
+  lastSeenParsed: Date;
   roleCode: string;
   joinCount: number;
   earliestMembershipTimestamp: Date;
