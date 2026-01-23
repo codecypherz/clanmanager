@@ -176,7 +176,7 @@ export class ClashRoyaleService {
     if (war == undefined) {
       return false;
     }
-
+    
     const now = new Date();
     const warStart = this.getThursday(weekOffset);
     let warEnd = new Date(warStart);
@@ -185,6 +185,10 @@ export class ClashRoyaleService {
 
     if (this.isAccountableForWar(warStart, warEnd, joinTime)) {
       let fame = war?.fame || 0;
+      if (weekOffset == 0 && now.getDay() == 5) {
+        // If only 1 day of the war has passed (it's Friday), then kick for zero
+        return fame == 0;
+      }
       return fame <= 400;
     }
 
