@@ -1,7 +1,8 @@
 {
   "/v1": {
-    "target": "https://api.clashroyale.com",
+    "target": "https://proxy.royaleapi.dev",
     "secure": true,
-    "changeOrigin": true
+    "changeOrigin": true,
+    "logLevel": "debug"
   }
 }

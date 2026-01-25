@@ -98,7 +98,7 @@ export class ClanListComponent implements OnInit {
   }
 
   private formatDuration(ms: number): string {
-    if (ms < 1000) return `${ms}ms`;
+    if (ms < 1000) return `1s`;
 
     const parts: string[] = [];
     let remainingMs = ms;

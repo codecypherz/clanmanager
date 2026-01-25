@@ -66,17 +66,18 @@
         },
         "serve": {
           "builder": "@ngx-env/builder:dev-server",
+          "options": {
+            "proxyConfig": "proxy.conf.json"
+          },
           "configurations": {
             "production": {
               "buildTarget": "clanmanager:build:production"
             },
             "development": {
-              "buildTarget": "clanmanager:build:development",
-              "proxyConfig": "proxy.conf.json"
+              "buildTarget": "clanmanager:build:development"
             }
           },
-          "defaultConfiguration": "development",
-          "options": {}
+          "defaultConfiguration": "development"
         },
         "test": {
           "builder": "@ngx-env/builder:unit-test",
