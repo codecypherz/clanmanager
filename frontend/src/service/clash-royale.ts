@@ -6,6 +6,7 @@ import { environment } from '../environments/environment';
 import { map } from 'rxjs/operators';
 import { SnapshotService } from './snapshot-service';
 import { KickCountService } from './kick-count-service';
+import { TestService } from './test-service';
 
 // The endpoints invoked by this service and the responses mapped come
 // directly from the service defitions of the Clash Royale API.
@@ -17,7 +18,7 @@ import { KickCountService } from './kick-count-service';
   providedIn: 'root'
 })
 export class ClashRoyaleService {
-  
+
   private readonly NEW_JOIN_GRACE_PERIOD_MS = 1000 * 60 * 60 * 24; // 24 hours
   private readonly WAR_GRACE_PERIOD_MS = 1000 * 60 * 60 * 24; // 24 hours
   private readonly LAST_SEEN_GACE_PERIOD_MS = 1000 * 60 * 60 * 24 * 2.5; // 2.5 days
@@ -28,7 +29,8 @@ export class ClashRoyaleService {
   constructor(
     private http: HttpClient,
     private snapshotService: SnapshotService,
-    private kickCountService: KickCountService) {}
+    private kickCountService: KickCountService,
+    private testService: TestService) { }
 
   getClanMembers(clanTag: string): Observable<ClanResult> {
     // Clan tags in the URL must be URL-encoded (replace # with %23)
@@ -51,21 +53,21 @@ export class ClashRoyaleService {
 
         const lastLastWarStandings = warLog.items[1]?.standings.find(s => s.clan.tag === clanTag);
         const lastLastWarParticipants = lastLastWarStandings?.clan.participants || [];
-        
+
         const currentParticipants = currentWar.clan.participants;
 
         // Join the data
-        const currentMembers : ClanMember[] = members.memberList.map(member => ({
+        const currentMembers: ClanMember[] = members.memberList.map(member => ({
           ...member,
           roleCode: this.getRoleCode(member.role),
           currentWar: this.isWarDay() ? this.findWarParticipant(member, currentParticipants) : undefined,
           lastWar: this.findWarParticipant(member, lastWarParticipants),
           lastLastWar: this.findWarParticipant(member, lastLastWarParticipants),
           historical: false,
-        // After all the data is collected, perform additional derivative calculations
+          // After all the data is collected, perform additional derivative calculations
         }));
 
-        const historicalMembers : ClanMember[] = this.getHistoricalMembers(currentMembers, allSnapshots);
+        const historicalMembers: ClanMember[] = this.getHistoricalMembers(currentMembers, allSnapshots);
 
         // Make some additional calculations for all current and historical members.
         const allMembers: ClanMember[] = currentMembers.concat(historicalMembers);
@@ -99,7 +101,7 @@ export class ClashRoyaleService {
     });
   }
 
-  private getLastSnapshotTime(allSnapshots: ClanSnapshot[]): Date|undefined {
+  private getLastSnapshotTime(allSnapshots: ClanSnapshot[]): Date | undefined {
     return allSnapshots.length > 0 ? new Date(allSnapshots[0].timestamp) : undefined;
   }
 
@@ -114,7 +116,7 @@ export class ClashRoyaleService {
   }
 
   private getRoleCode(role: string): string {
-    switch(role) {
+    switch (role) {
       case "leader":
         return "L";
       case "coLeader":
@@ -136,7 +138,7 @@ export class ClashRoyaleService {
     return new Date(parsed);
   }
 
-  private findWarParticipant(member: ClanMember, warParticipants: WarParticipant[]): WarParticipant|undefined {
+  private findWarParticipant(member: ClanMember, warParticipants: WarParticipant[]): WarParticipant | undefined {
     return warParticipants.find(p => p.tag === member.tag);
   }
 
@@ -172,11 +174,11 @@ export class ClashRoyaleService {
     return false;
   }
 
-  private shouldKickForWar(member: ClanMember, weekOffset: number, war: WarParticipant|undefined): boolean {
+  private shouldKickForWar(member: ClanMember, weekOffset: number, war: WarParticipant | undefined): boolean {
     if (war == undefined) {
       return false;
     }
-    
+
     const now = new Date();
     const warStart = this.getThursday(weekOffset);
     let warEnd = new Date(warStart);
@@ -214,7 +216,7 @@ export class ClashRoyaleService {
     }
 
     if (joinTime.getTime() > warStart.getTime() &&
-        joinTime.getTime() < warEnd.getTime()) {
+      joinTime.getTime() < warEnd.getTime()) {
       // The player joined in the middle of the war.
       // They are accountable if they had enough time to participate.
       if (warEnd.getTime() - joinTime.getTime() > this.WAR_GRACE_PERIOD_MS) {
@@ -275,7 +277,7 @@ export class ClashRoyaleService {
       joinCount = 0;
       lastIsMember = false;
     }
-    
+
     // This walks backward in time.
     for (const snapshot of allSnapshots) {
       var isMember = this.isMember(member.tag, snapshot);
@@ -284,7 +286,7 @@ export class ClashRoyaleService {
       if (isMember) {
         earliestMembershipTimestamp = new Date(snapshot.timestamp);
       }
-      
+
       // Now determine if join count should be incremented.
       if (lastIsMember == isMember) {
         // No change detected
@@ -317,7 +319,7 @@ export class ClashRoyaleService {
       currentIds.add(currentMember.tag);
     }
 
-    const historicalMembers : ClanMember[] = [];
+    const historicalMembers: ClanMember[] = [];
     const historicalIds = new Set<string>();
 
     // The first snapshot is the most recent.
@@ -359,13 +361,13 @@ export class ClashRoyaleService {
     let daysSinceRecentThursday = (currentDay - targetDay) % 7;
 
     const targetDate = new Date(now);
-    
+
     // Use the offset to go further back in time
     targetDate.setDate(now.getDate() - daysSinceRecentThursday - (7 * weekOffset));
-    
+
     // Reset time to the beginning of the day
     targetDate.setHours(0, 0, 0, 0);
-    
+
     return targetDate;
   }
 }
