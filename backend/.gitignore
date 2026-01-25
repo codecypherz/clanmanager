@@ -3,3 +3,12 @@
 /node_modules
 npm-debug.log
 yarn-error.log
+
+# Compiled output
+/dist
+/tmp
+/out-tsc
+
+# Local secrets
+.env
+clanmanager*.json
