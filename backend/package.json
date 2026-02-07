@@ -7,7 +7,7 @@
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node dist/server.js",
-    "dev": "node --loader ts-node/esm src/server.ts"
+    "dev": "tsx watch src/server.ts"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +22,7 @@
     "express": "^5.2.1",
     "firebase-admin": "^13.6.0",
     "save-dev": "^0.0.1-security",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },
   "devDependencies": {

@@ -18,10 +18,10 @@
           "builder": "@ngx-env/builder:application",
           "options": {
             "outputPath": {
-              "base": "docs",
+              "base": "../backend/dist/public",
               "browser": ""
             },
-            "baseHref": "/clanmanager/",
+            "baseHref": "/",
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
             "assets": [

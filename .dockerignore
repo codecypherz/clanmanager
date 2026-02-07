@@ -1,0 +1,21 @@
+# Dependency directories
+**/node_modules
+**/npm-debug.log
+
+# Build outputs
+**/dist
+**/docs
+**/.angular
+
+# Git
+.git
+.gitignore
+
+# Environment files
+.env
+*.env.local
+**/clanmanager*.json
+
+# OS files
+.DS_Store
+Thumbs.db
