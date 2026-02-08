@@ -41,14 +41,15 @@ const PORT = process.env.PORT || 8080;
 
 // Serve static files from the 'public' directory
 // Recreate __dirname for ES Modules
+// In a monorepo TSC build with rootDir: "..", 
+// the file is at: /dist/backend/src/server.js
+// We need to go up TWO levels to reach /dist/ where 'public' lives.
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-// This checks if we are running from 'src' (locally) or 'dist' (prod)
-const publicPath = __dirname.endsWith('dist') 
-  ? path.join(__dirname, 'public') 
-  : path.join(__dirname, '../dist/public');
+const publicPath = path.resolve(__dirname, '../../public');
 
 console.log('--- Path Configuration ---');
+console.log('__dirname is:', __dirname);
 console.log('Serving static files from:', publicPath);
 console.log('--------------------------');
 
@@ -71,6 +72,9 @@ app.post('/api/snapshots', async (req, res) => {
     snapshotData.timestamp = new Date(snapshotData.timestamp);
 
     const docRef = await db.collection('snapshots').add(snapshotData);
+
+    // TODO: Delete snapshots if we have more than 100.
+
     res.status(201).json({ id: docRef.id, ...snapshotData });
 
   } catch (error) {

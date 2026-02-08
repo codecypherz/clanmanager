@@ -34,11 +34,22 @@ RUN cd backend && npm run build
 FROM node:20-slim
 WORKDIR /app
 
-# Copy the compiled backend (which now includes the public frontend files)
-COPY --from=builder /app/backend/dist ./dist
+# A. Copy the workspace root files
+COPY package*.json ./
 
-COPY backend/package*.json ./
-RUN npm install --omit=dev
+# B. Copy the Shared folder (needed for the local dependency)
+# We copy the source because the backend TSC output usually points back to these
+COPY --from=builder /app/shared ./shared
+
+# C. Copy the Backend compiled dist and package.json
+COPY --from=builder /app/backend/package*.json ./backend/
+COPY --from=builder /app/backend/dist ./backend/dist
+
+# D. Install production dependencies for the backend workspace
+# The --workspace flag tells npm to only install for the backend
+# but it will find the @clan-manager/shared link in the root
+RUN npm install --omit=dev --workspace=backend
 
 EXPOSE 8080
-CMD ["node", "dist/server.js"]
+# This is a direct consequence of how "rootDir" is set in backend/tsconfig.json
+CMD ["node", "backend/dist/backend/src/server.js"]
