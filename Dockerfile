@@ -1,27 +1,42 @@
-# --- Stage 1: Build Angular ---
-FROM node:20 AS frontend-builder
-WORKDIR /app/frontend
-COPY frontend/package*.json ./
+# ----------------------------------
+# --- Stage 1: Build Environment ---
+# ----------------------------------
+FROM node:20 AS builder
+WORKDIR /app
+
+# 1. Copy the "Blueprint" of your monorepo
+# We copy all package.json files first to leverage Docker layer caching
+COPY package*.json ./
+COPY shared/package*.json ./shared/
+COPY frontend/package*.json ./frontend/
+COPY backend/package*.json ./backend/
+
+# 2. Install dependencies for the WHOLE workspace
+# This creates the @clan-manager/shared symlinks in node_modules
 RUN npm install
-COPY frontend/ .
+
+# 3. Copy the source code
+COPY shared/ ./shared/
+COPY frontend/ ./frontend/
+COPY backend/ ./backend/
+
+# 4. Build Shared logic (if it has a build step, otherwise skip)
+# 5. Build Frontend
 # This populates ../backend/dist/public
-RUN npm run build
+RUN cd frontend && npm run build
 
-# --- Stage 2: Build Node Backend ---
-FROM node:20 AS backend-builder
-WORKDIR /app/backend
-COPY backend/package*.json ./
-RUN npm install
-COPY backend/ .
-RUN npm run build
-# Ensure the frontend files are moved into the backend's dist
-COPY --from=frontend-builder /app/backend/dist/public ./dist/public
+# 6. Build Backend
+RUN cd backend && npm run build
 
-# --- Stage 3: Final Production Image ---
+# ---------------------------------------
+# --- Stage 2: Final Production Image ---
+# ---------------------------------------
 FROM node:20-slim
 WORKDIR /app
-# Only copy the final compiled dist and production dependencies
-COPY --from=backend-builder /app/backend/dist ./dist
+
+# Copy the compiled backend (which now includes the public frontend files)
+COPY --from=builder /app/backend/dist ./dist
+
 COPY backend/package*.json ./
 RUN npm install --omit=dev
 

@@ -57,6 +57,7 @@ export interface WarParticipant {
 }
 
 export interface ClanSnapshot {
+  id?: string; // Firestore document ID
   clanTag: string;
   timestamp: Date;
   members: ClanMember[];

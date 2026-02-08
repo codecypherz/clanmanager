@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ClashRoyaleService } from '../../service/clash-royale';
-import { ClanMember, ClanResult } from '../../model/clan-member';
+import { ClanMember, ClanResult } from '../../../../shared/models/clan-member';
 import { Observable, timer, switchMap, shareReplay } from 'rxjs';
 import { AsyncPipe } from '@angular/common';
 import { KickCountService } from '../../service/kick-count-service';

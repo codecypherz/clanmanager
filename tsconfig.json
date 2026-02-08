@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@clan-manager/shared": ["shared/index.ts"]
+    }
+  }
+}

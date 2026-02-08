@@ -6,6 +6,7 @@ import { readFile } from 'fs/promises';
 import { getFirestore } from 'firebase-admin/firestore';
 import path from 'path';
 import { fileURLToPath } from 'node:url';
+import type { ClanSnapshot } from '@clan-manager/shared';
 
 // Initialize Firebase
 try {
@@ -56,23 +57,58 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(publicPath));
 
-// Fetch stored data.
-app.get('/api/data', async (req, res) => {
+// Save a new snapshot
+app.post('/api/snapshots', async (req, res) => {
   try {
-    const snapshot = await db.collection('items').get();
-
-    if (snapshot.empty) {
-      console.log('Connected, but no documents found.');
-      return res.json([]);
+    const snapshotData: ClanSnapshot = req.body;
+    
+    if (snapshotData.id) {
+      res.status(400).send("Attempted to save an already saved snapshot.");
+      return;
     }
 
-    const data = snapshot.docs.map(doc => doc.data());
-    res.json(data);
-  } catch (error) {
-    console.error("Firestore Error:", error);
-    throw error;
-  }
+    // Ensure timestamp is a Date object (if passed as string)
+    snapshotData.timestamp = new Date(snapshotData.timestamp);
 
+    const docRef = await db.collection('snapshots').add(snapshotData);
+    res.status(201).json({ id: docRef.id, ...snapshotData });
+
+  } catch (error) {
+    console.error("Error saving snapshot:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+// Fetch snapshots for a specific clan
+app.get('/api/snapshots/:clanTag', async (req, res) => {
+  console.log("Fetching snapshots from Firestore");
+  try {
+    const { clanTag } = req.params;
+    const { since } = req.query; // Optional: fetch only newer than this ISO string
+
+    let query = db.collection('snapshots')
+      .where('clanTag', '==', clanTag)
+      .orderBy('timestamp', 'desc');
+
+    if (since) {
+      query = query.where('timestamp', '>', new Date(since as string));
+    }
+
+    const firestoreSnap = await query.limit(100).get();
+    const history = firestoreSnap.docs.map(doc => {
+      const data = doc.data();
+      return {
+        ...data,
+        id: doc.id,
+        timestamp: data.timestamp.toDate() // Convert Firestore Timestamp to JS Date
+      };
+    });
+
+    res.json(history);
+  } catch (error) {
+    console.error("Error fetching snapshots:", error);
+    res.status(500).send("Internal Server Error");
+  }
 });
 
 // The Catch-all: Route all other requests to index.html

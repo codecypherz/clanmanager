@@ -1,0 +1,9 @@
+{
+  "name": "clan-manager",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend",
+    "shared"
+  ]
+}

@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, forkJoin } from 'rxjs';
-import { ClanMember, ClanResult, ClanSnapshot, WarParticipant } from '../model/clan-member';
+import { ClanMember, ClanResult, ClanSnapshot, WarParticipant } from '@clan-manager/shared';
 import { environment } from '../environments/environment';
 import { map } from 'rxjs/operators';
 import { SnapshotService } from './snapshot-service';
 import { KickCountService } from './kick-count-service';
-import { TestService } from './test-service';
 
 // The endpoints invoked by this service and the responses mapped come
 // directly from the service defitions of the Clash Royale API.
@@ -29,8 +28,7 @@ export class ClashRoyaleService {
   constructor(
     private http: HttpClient,
     private snapshotService: SnapshotService,
-    private kickCountService: KickCountService,
-    private testService: TestService) { }
+    private kickCountService: KickCountService) { }
 
   getClanMembers(clanTag: string): Observable<ClanResult> {
     // Clan tags in the URL must be URL-encoded (replace # with %23)
@@ -82,7 +80,7 @@ export class ClashRoyaleService {
 
         // Save the newly fetched data.
         // Calling "subscribe" ensures the Observable is invoked.
-        this.snapshotService.saveSnapshot(clanTag, currentMembers).subscribe();
+        this.snapshotService.saveSnapshot(clanTag, currentMembers, allSnapshots).subscribe();
 
         // Return the final ClanResult.
         return {

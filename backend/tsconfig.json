@@ -1,8 +1,14 @@
 {
-  
   "compilerOptions": {
-    // File Layout
-    "rootDir": "./src",
+    "rootDir": "..",
+    "rootDirs": [
+      "./src",
+      "../shared"
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@clan-manager/shared": ["../shared/index.ts"]
+    },
     "outDir": "./dist",
 
     // Environment Settings
@@ -43,6 +49,9 @@
     "moduleDetection": "force",
     "skipLibCheck": true,
   },
-  "include": ["src/**/*"],             /* Only compile things in src */
+  "include": [
+    "src/**/*",
+    "../shared/**/*"
+  ],
   "exclude": ["node_modules"]
 }
