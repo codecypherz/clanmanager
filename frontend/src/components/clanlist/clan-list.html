@@ -1,81 +1,103 @@
-
-<div class="min-h-screen bg-slate-900 p-8 text-white">
-  <div class="max-w-5xl mx-auto bg-slate-800 rounded-xl shadow-2xl border-4 border-slate-700 overflow-hidden">
+<div class="min-h-screen bg-slate-900 p-2 sm:p-8 text-white">
+  <div class="max-w-5xl mx-auto bg-slate-800 rounded-xl shadow-2xl border-2 sm:border-4 border-slate-700 overflow-hidden">
     
-    <div class="bg-linear-to-b from-yellow-400 to-yellow-600 px-2 py-1 border-b-4 border-yellow-700">
-      <h2 class="text-3xl font-black text-blue-900 uppercase tracking-tight drop-shadow-md">
+    <div class="bg-linear-to-b from-yellow-400 to-yellow-600 px-4 py-3 border-b-4 border-yellow-700">
+      <div class="flex justify-between items-center">
+        <h2 class="text-xl sm:text-3xl font-black text-blue-900 uppercase tracking-tight drop-shadow-md">
+          @if (clanResult$ | async; as clanResult) {
+            Guinea Guns: {{ clanResult.currentMemberCount }}/50
+          } @else {
+            Loading...
+          }
+        </h2>
         @if (clanResult$ | async; as clanResult) {
-          <span [title]="getFreshnessTooltip(clanResult)">
-            Guinea Guns:
-            {{ clanResult.currentMemberCount + " / 50" }}
+          <span class="text-lg text-blue-900 leading-none text-right">
+            Updated: {{ getRelativeTime(lastFetch!) }} ago
           </span>
-        } @else {
-          Loading...
         }
-      </h2>
+      </div>
     </div>
 
-    <div class="overflow-auto">
+    <div class="overflow-hidden">
       @if (clanResult$ | async; as clanResult) {
-        <table class="w-full text-left border-collapse">
-          <thead class="sticky top-0 z-10 table-fixed bg-slate-700 text-yellow-400 uppercase text-sm">
-            <tr>
-              <th class="w-20 px-2 text-right">Trophies</th>
-              <th class="px-2">Player</th>
-              <th class="w-20 px-2 text-right" title="Current War">W</th>
-              <th class="w-20 px-2 text-right" title="Last War">W -1</th>
-              <th class="w-20 px-2 text-right" title="Last Last War">W -2</th>
-              <th class="w-5 px-2 text-right" title="Donations">Don</th>
-              <th class="w-5 px-2 text-center" title="Joins">Joins</th>
-              <th class="w-5 px-2 text-center" title="Earliest known membership">Join Date</th>
-              <th class="w-5 px-2 text-center" title="Last Seen">Last Seen</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-700">
-            @for (member of clanResult.allMembers; track member.tag; let i = $index) {
-              <tr class="hover:opacity-80 transition-colors group"
-                  [class.bg-gray-700]="member.historical"
-                  [class.bg-orange-900]="member.shouldKick"
-                  [class.bg-yellow-900]="member.shouldNudge"
-                  [class.bg-green-700]="member.newlyJoined">
-                <td class="px-2 text-right">
-                  {{ member.trophies }}
-                </td>
-                <td class="px-2">
-                  <span class="font-bold text-white group-hover:text-yellow-400"
-                      [class.text-gray-400]="member.historical">
-                    {{ member.name }}
-                  </span>
-                </td>
-                <td class="px-2 text-right">
-                  {{ member.currentWar?.fame }}
-                </td>
-                <td class="px-2 text-right">
-                  {{ member.lastWar?.fame }}
-                </td>
-                <td class="px-2 text-right">
-                  {{ member.lastLastWar?.fame }}
-                </td>
-                <td class="px-2 text-right">
-                  {{ member.donations }}
-                </td>
-                <td class="px-2 text-center">
-                  {{ member.joinCount }}
-                </td>
-                <td class="px-2 text-center" [title]="getJoinDateTooltip(member)">
-                  {{ getJoinDate(member) }}
-                </td>
-                <td class="px-2 text-center" [title]="getLastSeenTooltip(member)">
-                  {{ getLastSeen(member) }}
-                </td>
+        
+        <!-- Show a table on a wider screen -->
+        <div class="hidden md:block overflow-auto">
+          <table class="w-full text-left border-collapse">
+            <thead class="sticky top-0 z-10 bg-slate-700 text-yellow-400 uppercase text-sm">
+              <tr>
+                <th class="p-3 text-right">🏆</th>
+                <th class="p-3">Player</th>
+                <th class="p-3 text-right">W</th>
+                <th class="p-3 text-right">W-1</th>
+                <th class="p-3 text-right">W-2</th>
+                <th class="p-3 text-right">Don</th>
+                <th class="p-3 text-center">Joins</th>
+                <th class="p-3 text-center">Joined</th>
+                <th class="p-3 text-center">Last Seen</th>
               </tr>
-            }
-          </tbody>
-        </table>
+            </thead>
+            <tbody class="divide-y divide-slate-700">
+              @for (member of clanResult.allMembers; track member.tag) {
+                <tr class="hover:bg-slate-700/50 transition-colors group"
+                    [class.bg-gray-700]="member.historical"
+                    [class.bg-orange-900]="member.shouldKick"
+                    [class.bg-yellow-900]="member.shouldNudge"
+                    [class.bg-green-700]="member.newlyJoined">
+                  <td class="p-3 text-right font-mono">{{ member.trophies }}</td>
+                  <td class="p-3">
+                    <div class="font-bold text-white group-hover:text-yellow-400">{{ member.name }}</div>
+                  </td>
+                  <td class="p-3 text-right">{{ member.currentWar?.fame || 0 }}</td>
+                  <td class="p-3 text-right">{{ member.lastWar?.fame || 0 }}</td>
+                  <td class="p-3 text-right">{{ member.lastLastWar?.fame || 0 }}</td>
+                  <td class="p-3 text-right">{{ member.donations }}</td>
+                  <td class="p-3 text-center">{{ member.joinCount }}</td>
+                  <td class="p-3 text-center text-xs">{{ getRelativeTime(member.earliestMembershipTimestamp) }} ago</td>
+                  <td class="p-3 text-center text-xs">{{ getRelativeTime(member.lastSeenParsed) }} ago</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Show cards on a mobile device. -->
+        <div class="md:hidden divide-y divide-slate-700">
+          @for (member of clanResult.allMembers; track member.tag) {
+            <div class="p-4 flex flex-col gap-2"
+                 [class.bg-slate-800]="!member.historical"
+                 [class.bg-gray-900]="member.historical"
+                 [class.border-l-4]="member.shouldKick || member.shouldNudge || member.newlyJoined"
+                 [class.border-orange-500]="member.shouldKick"
+                 [class.border-yellow-500]="member.shouldNudge"
+                 [class.border-green-500]="member.newlyJoined">
+              
+              <div class="flex justify-between items-center">
+                <span class="font-black text-lg tracking-wide" [class.text-slate-500]="member.historical">
+                  {{ member.name }}
+                </span>
+                <span class="text-yellow-500 font-bold">🏆 {{ member.trophies }}</span>
+              </div>
+
+              <div class="grid grid-cols-4 gap-1 text-center bg-slate-900/50 rounded-lg p-2 text-xs uppercase">
+                <div><div class="text-slate-500">W</div><div class="font-bold">{{ member.currentWar?.fame || 0 }}</div></div>
+                <div><div class="text-slate-500">W-1</div><div class="font-bold">{{ member.lastWar?.fame || 0 }}</div></div>
+                <div><div class="text-slate-500">W-2</div><div class="font-bold">{{ member.lastLastWar?.fame || 0 }}</div></div>
+                <div><div class="text-slate-500">Don</div><div class="font-bold text-green-400">{{ member.donations }}</div></div>
+              </div>
+
+              <div class="flex justify-between text-[10px] text-slate-400 uppercase tracking-widest font-semibold">
+                <span>Joined: {{ getRelativeTime(member.earliestMembershipTimestamp) }} ago</span>
+                <span>Seen: {{ getRelativeTime(member.lastSeenParsed) }} ago</span>
+              </div>
+            </div>
+          }
+        </div>
+
       } @else if (errorMessage) {
-        <p class="text-red-500">{{ errorMessage }}</p>
+        <div class="p-8 text-center text-red-500">{{ errorMessage }}</div>
       } @else {
-        <p class="text-slate-400">Loading Royale Data...</p>
+        <div class="p-8 text-center text-slate-400 animate-pulse">Loading Royale Data...</div>
       }
     </div>
   </div>

@@ -104,4 +104,18 @@ export class ClanListComponent implements OnInit {
 
     return parts.join(', ');
   }
+
+  getRelativeTime(timestamp: number | Date): string {
+    const diff = new Date().getTime() - new Date(timestamp).getTime();
+    if (diff < 60000) return 'Just now';
+    
+    // Find the largest unit that fits
+    for (const { label, ms: unitMs } of UNITS) {
+      const count = Math.floor(diff / unitMs);
+      if (count > 0) {
+        return `${count}${label.charAt(0)}`; // e.g., "3d", "5h"
+      }
+    }
+    return 'unknown';
+  }
 }
