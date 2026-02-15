@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, forkJoin } from 'rxjs';
-import { ClanMember, ClanResult, ClanSnapshot, WarParticipant } from '@clan-manager/shared';
+import { ClanMember, ClanResult, ClanSnapshot, Eval, WarParticipant } from '@clan-manager/shared';
 import { environment } from '../environments/environment';
 import { map } from 'rxjs/operators';
 import { SnapshotService } from './snapshot-service';
@@ -71,6 +71,7 @@ export class ClashRoyaleService {
           this.setHistoricalMembershipData(member, allSnapshots);
           member.lastSeenParsed = this.parseLastSeen(member.lastSeen);
           member.newlyJoined = this.getTimeSinceJoin(member) < this.NEW_JOIN_GRACE_PERIOD_MS;
+          member.donationEval = this.evaluateDonations(member);
           member.shouldKick = this.shouldKick(member);
           member.shouldNudge = this.shouldNudge(member);
         }
@@ -143,6 +144,10 @@ export class ClashRoyaleService {
     return [4, 5, 6, 0].includes(new Date().getDay());
   }
 
+  private evaluateDonations(member: ClanMember): Eval {
+    return member.donations == 0 ? Eval.BAD : Eval.GOOD;
+  }
+
   private shouldKick(member: ClanMember): boolean {
     if (member.historical) {
       return false; // Already not in the clan.
@@ -176,19 +181,30 @@ export class ClashRoyaleService {
 
     const now = new Date();
     const warStart = this.getThursday(weekOffset);
+    console.log("offest and war start", weekOffset, warStart);
     let warEnd = new Date(warStart);
     warEnd.setDate(warStart.getDate() + 4);
     const joinTime = new Date(member.earliestMembershipTimestamp);
 
     if (this.isAccountableForWar(warStart, warEnd, joinTime)) {
       let fame = war?.fame || 0;
-      if (weekOffset == 0 && now.getDay() == 5) {
-        // If only 1 day of the war has passed (it's Friday), then kick for zero
-        return fame == 0;
+      let nowDay = now.getDay();
+      let numWarDay = nowDay == 0 ? 4 : nowDay - 3;
+      let goodFame = numWarDay * 400;
+      let kickThreshold = goodFame / 2;
+      if (fame <= kickThreshold) {
+        war.warEval = Eval.BAD;
+      } else if (fame >= goodFame) {
+        war.warEval = Eval.GOOD;
+      } else {
+        // Between "kick" and "good"
+        war.warEval = Eval.NEUTRAL;
       }
-      return fame <= 400;
+      return fame <= kickThreshold;
     }
 
+    // No accountability
+    war.warEval = Eval.NEUTRAL;
     return false;
   }
 
@@ -353,7 +369,7 @@ export class ClashRoyaleService {
     const targetDay = 4; // Thursday
 
     // Calculate days since the most recent Thursday
-    let daysSinceRecentThursday = (currentDay - targetDay) % 7;
+    let daysSinceRecentThursday = (currentDay - targetDay + 7) % 7;
 
     const targetDate = new Date(now);
 

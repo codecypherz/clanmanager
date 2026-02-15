@@ -20,6 +20,7 @@ export interface ClanMember {
   expLevel: number;
   trophies: number;
   donations: number;
+  donationEval: Eval;
   arena: {
     id: number;
     name: string;
@@ -54,6 +55,7 @@ export interface WarParticipant {
   boatAttacks: number;
   decksUsed: number;
   decksUsedToday: number;
+  warEval: Eval;
 }
 
 export interface ClanSnapshot {
@@ -61,4 +63,10 @@ export interface ClanSnapshot {
   clanTag: string;
   timestamp: Date;
   members: ClanMember[];
+}
+
+export enum Eval {
+  GOOD = 0,
+  BAD = 1,
+  NEUTRAL = 2
 }
