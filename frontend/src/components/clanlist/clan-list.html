@@ -53,8 +53,7 @@
               <tr class="hover:bg-slate-700/50 transition-colors group"
                   [class.bg-gray-900]="member.historical"
                   [class.bg-orange-900]="member.shouldKick"
-                  [class.bg-yellow-900]="member.shouldNudge"
-                  [class.bg-green-900]="member.newlyJoined">
+                  [class.bg-yellow-900]="member.shouldNudge">
                 <td class="p-3 text-right font-mono">{{ member.trophies }}</td>
                 <td class="p-3">
                   <div class="font-bold text-white group-hover:text-yellow-400">{{ member.name }}</div>
@@ -75,7 +74,10 @@
                   {{ member.donations }}
                 </td>
                 <td class="p-3 text-center">{{ member.joinCount }}</td>
-                <td class="p-3 text-center text-xs">{{ getRelativeTime(member.earliestMembershipTimestamp) }}</td>
+                <td class="p-3 text-center text-xs"
+                  [class.text-yellow-400]="member.newlyJoined">
+                  {{ getRelativeTime(member.earliestMembershipTimestamp) }}
+                </td>
                 <td class="p-3 text-center text-xs">{{ getRelativeTime(member.lastSeenParsed) }}</td>
               </tr>
             }
@@ -90,8 +92,7 @@
                [class.bg-gray-900]="member.historical"
                [class.border-l-4]="member.shouldKick || member.shouldNudge || member.newlyJoined"
                [class.border-orange-500]="member.shouldKick"
-               [class.border-yellow-500]="member.shouldNudge"
-               [class.border-green-500]="member.newlyJoined">
+               [class.border-yellow-500]="member.shouldNudge">
             
             <div class="flex justify-between items-center">
               <span class="font-black text-lg tracking-wide" [class.text-slate-500]="member.historical">
@@ -125,7 +126,9 @@
             </div>
 
             <div class="flex justify-between text-[10px] text-slate-400 uppercase tracking-widest font-semibold">
-              <span>Joined: {{ getRelativeTime(member.earliestMembershipTimestamp) }}</span>
+              <span [class.text-yellow-400]="member.newlyJoined">
+                Joined: {{ getRelativeTime(member.earliestMembershipTimestamp) }}
+              </span>
               <span class="text-blue-400">Joins: {{ member.joinCount }}</span>
               <span>Seen: {{ getRelativeTime(member.lastSeenParsed) }}</span>
             </div>
