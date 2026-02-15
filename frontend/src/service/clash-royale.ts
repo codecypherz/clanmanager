@@ -175,17 +175,18 @@ export class ClashRoyaleService {
     }
 
     const now = new Date();
-    const warStart = this.getThursday(weekOffset);
+    const warStart = this.getThursdayReset(weekOffset);
     let warEnd = new Date(warStart);
     warEnd.setDate(warStart.getDate() + 4);
     const joinTime = new Date(member.earliestMembershipTimestamp);
 
-    if (this.isAccountableForWar(warStart, warEnd, joinTime)) {
-      let fame = war?.fame || 0;
-      let nowDay = now.getDay();
-      let numWarDay = nowDay == 0 ? 4 : nowDay - 3;
-      let goodFame = numWarDay * 400;
-      let kickThreshold = goodFame / 2;
+    let fame = war.fame || 0;
+    let numDaysActiveInWar = this.getNumWarDaysActive(warStart, warEnd, joinTime, now);
+    war.warDaysActive = numDaysActiveInWar;
+
+    if (numDaysActiveInWar > 0) {
+      let goodFame = numDaysActiveInWar * 400;
+      let kickThreshold = (numDaysActiveInWar - 1) * 400;
       if (fame <= kickThreshold) {
         war.warEval = Eval.BAD;
       } else if (fame >= goodFame) {
@@ -198,29 +199,40 @@ export class ClashRoyaleService {
     }
 
     // No accountability
-    war.warEval = Eval.NEUTRAL;
+    war.warEval = fame == 0 ? Eval.NOT_APPLICABLE : Eval.NEUTRAL;
     return false;
   }
 
-  private isAccountableForWar(warStart: Date, warEnd: Date, joinTime: Date): boolean {
+  private getNumWarDaysActive(warStart: Date, warEnd: Date, joinTime: Date, now: Date): number {
     if (joinTime.getTime() > warEnd.getTime()) {
       // The player joined after the war ended, so they are not accountable.
-      return false;
+      return 0;
     }
 
     if (warStart.getTime() > joinTime.getTime()) {
       // The war started after the player joined, so they are accountable.
-      return true;
+      return Math.min(this.getDaysBetween(warStart, now), 4);
     }
 
     if (joinTime.getTime() > warStart.getTime() &&
       joinTime.getTime() < warEnd.getTime()) {
       // The player joined in the middle of the war.
-      return true;
+      return Math.min(this.getDaysBetween(joinTime, now), this.getDaysBetween(joinTime, warEnd));
     }
 
     // Not accountable by default.
-    return false;
+    return 0;
+  }
+
+  /**
+   * @param date1 - The first date
+   * @param date2 - The second date
+   * @returns The number of full days between the two dates rounded up
+   */
+  private getDaysBetween(date1: Date, date2: Date): number {
+    const diffInMs = Math.abs(date2.getTime() - date1.getTime());
+    const MS_PER_DAY = 1000 * 60 * 60 * 24;
+    return Math.ceil(diffInMs / MS_PER_DAY);
   }
 
   private isNewlyJoined(member: ClanMember): boolean {
@@ -356,9 +368,9 @@ export class ClashRoyaleService {
 
   /**
    * @param weekOffset 0 for this week, 1 for last week, 2 for last last week
-   * @returns The Thursday of interest
+   * @returns The Thursday of interest set at the reset hour
    */
-  private getThursday(weekOffset: number): Date {
+  private getThursdayReset(weekOffset: number): Date {
     const now = new Date();
     const currentDay = now.getDay();
     const targetDay = 4; // Thursday
@@ -371,8 +383,8 @@ export class ClashRoyaleService {
     // Use the offset to go further back in time
     targetDate.setDate(now.getDate() - daysSinceRecentThursday - (7 * weekOffset));
 
-    // Reset time to the beginning of the day
-    targetDate.setHours(0, 0, 0, 0);
+    // Reset time to the UTC reset hour
+    targetDate.setUTCHours(this.CLAN_WAR_RESET_HOUR_UTC, 0, 0, 0);
 
     return targetDate;
   }

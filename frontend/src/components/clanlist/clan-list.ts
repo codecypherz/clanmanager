@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ClashRoyaleService } from '../../service/clash-royale';
-import { ClanMember, ClanResult } from '../../../../shared/models/clan-member';
+import { ClanMember, ClanResult, Eval, WarParticipant } from '../../../../shared/models/clan-member';
 import { Observable, timer, switchMap, shareReplay } from 'rxjs';
 import { AsyncPipe } from '@angular/common';
 
@@ -57,5 +57,28 @@ export class ClanListComponent implements OnInit {
       }
     }
     return 'unknown';
+  }
+
+  getFameText(war: WarParticipant | undefined): string {
+    if (war && war.warEval != Eval.NOT_APPLICABLE) {
+      return war.fame.toString();
+    }
+    return "N/A";
+  }
+
+  getActiveWarDays(war : WarParticipant | undefined): string {
+    if (war && war.warEval != Eval.NOT_APPLICABLE) {
+      let warDaysActive = war.warDaysActive || 0;
+      return "(" + warDaysActive + ")";
+    }
+    return "N/A";
+  }
+
+  isPartialParticipation(war : WarParticipant | undefined): boolean {
+    if (war && war.warEval != Eval.NOT_APPLICABLE) {
+      let warDaysActive = war.warDaysActive || 0;
+      return warDaysActive > 0 && warDaysActive < 4;
+    }
+    return false;
   }
 }

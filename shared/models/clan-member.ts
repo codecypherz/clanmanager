@@ -56,6 +56,7 @@ export interface WarParticipant {
   decksUsed: number;
   decksUsedToday: number;
   warEval: Eval;
+  warDaysActive: number;
 }
 
 export interface ClanSnapshot {
@@ -68,5 +69,6 @@ export interface ClanSnapshot {
 export enum Eval {
   GOOD = 0,
   BAD = 1,
-  NEUTRAL = 2
+  NEUTRAL = 2,
+  NOT_APPLICABLE = 3
 }

@@ -51,17 +51,26 @@
                   <td class="p-3 text-right"
                     [class.text-green-400]="member.currentWar?.warEval == 0"
                     [class.text-red-400]="member.currentWar?.warEval == 1">
-                    {{ member.currentWar?.fame || 0 }}
+                    {{ getFameText(member.currentWar) }}
+                    <span class="text-slate-400" [class.hidden]="!isPartialParticipation(member.currentWar)">
+                      {{ getActiveWarDays(member.currentWar) }}
+                    </span>
                   </td>
                   <td class="p-3 text-right"
                     [class.text-green-400]="member.lastWar?.warEval == 0"
                     [class.text-red-400]="member.lastWar?.warEval == 1">
-                    {{ member.lastWar?.fame || 0 }}
+                    {{ getFameText(member.lastWar) }}
+                    <span class="text-slate-400" [class.hidden]="!isPartialParticipation(member.lastWar)">
+                      {{ getActiveWarDays(member.lastWar) }}
+                    </span>
                   </td>
                   <td class="p-3 text-right"
                     [class.text-green-400]="member.lastLastWar?.warEval == 0"
                     [class.text-red-400]="member.lastLastWar?.warEval == 1">
-                    {{ member.lastLastWar?.fame || 0 }}
+                    {{ getFameText(member.lastLastWar) }}
+                    <span class="text-slate-400" [class.hidden]="!isPartialParticipation(member.lastLastWar)">
+                      {{ getActiveWarDays(member.lastLastWar) }}
+                    </span>
                   </td>
                   <td class="p-3 text-right"
                     [class.text-green-400]="member.donationEval == 0"
@@ -101,7 +110,10 @@
                   <div class="font-bold"
                     [class.text-green-400]="member.currentWar?.warEval == 0"
                     [class.text-red-400]="member.currentWar?.warEval == 1">
-                    {{ member.currentWar?.fame || 0 }}
+                    {{ getFameText(member.currentWar) }}
+                    <span class="text-slate-400" [class.hidden]="!isPartialParticipation(member.currentWar)">
+                      {{ getActiveWarDays(member.currentWar) }}
+                    </span>
                   </div>
                 </div>
                 <div>
@@ -109,7 +121,10 @@
                   <div class="font-bold"
                     [class.text-green-400]="member.lastWar?.warEval == 0"
                     [class.text-red-400]="member.lastWar?.warEval == 1">
-                    {{ member.lastWar?.fame || 0 }}
+                    {{ getFameText(member.lastWar) }}
+                    <span class="text-slate-400" [class.hidden]="!isPartialParticipation(member.lastWar)">
+                      {{ getActiveWarDays(member.lastWar) }}
+                    </span>
                   </div>
                 </div>
                 <div>
@@ -117,7 +132,10 @@
                   <div class="font-bold"
                     [class.text-green-400]="member.lastLastWar?.warEval == 0"
                     [class.text-red-400]="member.lastLastWar?.warEval == 1">
-                    {{ member.lastLastWar?.fame || 0 }}
+                    {{ getFameText(member.lastLastWar) }}
+                    <span class="text-slate-400" [class.hidden]="!isPartialParticipation(member.lastLastWar)">
+                      {{ getActiveWarDays(member.lastLastWar) }}
+                    </span>
                   </div>
                 </div>
                 <div>
