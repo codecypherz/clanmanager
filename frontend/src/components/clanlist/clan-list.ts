@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ClashRoyaleService } from '../../service/clash-royale';
 import { ClanMember, ClanResult, Eval, WarParticipant } from '../../../../shared/models/clan-member';
-import { Observable, timer, switchMap, shareReplay } from 'rxjs';
-import { AsyncPipe } from '@angular/common';
+import { Observable, timer, switchMap, shareReplay, map } from 'rxjs';
+import { AsyncPipe, NgTemplateOutlet } from '@angular/common';
 
 const GUINEA_GUNS_TAG = '#QJCLJ8LR';
 
@@ -21,13 +21,16 @@ const UNITS: Unit[] = [
 @Component({
   selector: 'app-clan-list',
   templateUrl: './clan-list.html',
-  imports: [AsyncPipe]
+  imports: [AsyncPipe, NgTemplateOutlet]
 })
 export class ClanListComponent implements OnInit {
 
   private readonly REFRESH_INTERVAL_MS = 1000 * 60 * 60; // 1 hour.
 
   clanResult$: Observable<ClanResult> | undefined;
+  activeMembers$: Observable<ClanMember[]> | undefined;
+  historicalMembers$: Observable<ClanMember[]> | undefined;
+
   errorMessage: string = '';
   lastFetch: Date | undefined;
 
@@ -43,6 +46,15 @@ export class ClanListComponent implements OnInit {
         return this.crService.getClanMembers(GUINEA_GUNS_TAG);
       }),
       shareReplay(1));
+
+    // Derive the filtered lists from the main stream
+    this.activeMembers$ = this.clanResult$.pipe(
+      map(result => result.allMembers.filter(m => !m.historical))
+    );
+
+    this.historicalMembers$ = this.clanResult$.pipe(
+      map(result => result.allMembers.filter(m => m.historical))
+    );
   }
 
   getRelativeTime(timestamp: number | Date): string {
