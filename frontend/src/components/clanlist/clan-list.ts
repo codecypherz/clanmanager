@@ -49,7 +49,22 @@ export class ClanListComponent implements OnInit {
 
     // Derive the filtered lists from the main stream
     this.activeMembers$ = this.clanResult$.pipe(
-      map(result => result.allMembers.filter(m => !m.historical))
+      map(result => {
+        return result.allMembers
+          .filter(m => !m.historical)
+          .sort((a, b) => {
+            // Handle null/undefined war objects by defaulting fame to 0
+            const fameA = a.currentWar?.fame ?? 0;
+            const fameB = b.currentWar?.fame ?? 0;
+            
+            // Sort descending (highest points first)
+            if (fameB - fameA == 0) {
+              // Tie break on trophies
+              return b.trophies - a.trophies;
+            }
+            return fameB - fameA;
+          });
+      })
     );
 
     this.historicalMembers$ = this.clanResult$.pipe(
