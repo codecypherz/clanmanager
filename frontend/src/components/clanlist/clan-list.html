@@ -12,7 +12,7 @@
         </h2>
         @if (clanResult$ | async; as clanResult) {
           <span class="text-lg text-blue-900 leading-none text-right">
-            Updated: {{ getRelativeTime(lastFetch!) }} ago
+            Updated: {{ getRelativeTime(lastFetch!) }}
           </span>
         }
       </div>
@@ -53,8 +53,8 @@
                   <td class="p-3 text-right">{{ member.lastLastWar?.fame || 0 }}</td>
                   <td class="p-3 text-right">{{ member.donations }}</td>
                   <td class="p-3 text-center">{{ member.joinCount }}</td>
-                  <td class="p-3 text-center text-xs">{{ getRelativeTime(member.earliestMembershipTimestamp) }} ago</td>
-                  <td class="p-3 text-center text-xs">{{ getRelativeTime(member.lastSeenParsed) }} ago</td>
+                  <td class="p-3 text-center text-xs">{{ getRelativeTime(member.earliestMembershipTimestamp) }}</td>
+                  <td class="p-3 text-center text-xs">{{ getRelativeTime(member.lastSeenParsed) }}</td>
                 </tr>
               }
             </tbody>
@@ -87,8 +87,8 @@
               </div>
 
               <div class="flex justify-between text-[10px] text-slate-400 uppercase tracking-widest font-semibold">
-                <span>Joined: {{ getRelativeTime(member.earliestMembershipTimestamp) }} ago</span>
-                <span>Seen: {{ getRelativeTime(member.lastSeenParsed) }} ago</span>
+                <span>Joined: {{ getRelativeTime(member.earliestMembershipTimestamp) }}</span>
+                <span>Seen: {{ getRelativeTime(member.lastSeenParsed) }}</span>
               </div>
             </div>
           }

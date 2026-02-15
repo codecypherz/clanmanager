@@ -113,7 +113,7 @@ export class ClanListComponent implements OnInit {
     for (const { label, ms: unitMs } of UNITS) {
       const count = Math.floor(diff / unitMs);
       if (count > 0) {
-        return `${count}${label.charAt(0)}`; // e.g., "3d", "5h"
+        return `${count}${label.charAt(0)} ago`; // e.g., "3d", "5h"
       }
     }
     return 'unknown';
