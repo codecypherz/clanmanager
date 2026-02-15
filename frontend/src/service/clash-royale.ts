@@ -17,8 +17,9 @@ import { SnapshotService } from './snapshot-service';
 })
 export class ClashRoyaleService {
 
-  private readonly NEW_JOIN_GRACE_PERIOD_MS = 1000 * 60 * 60 * 24; // 24 hours
-  private readonly WAR_GRACE_PERIOD_MS = 1000 * 60 * 60 * 24; // 24 hours
+  // Reset is at 10am UTC which is 5am EST.
+  private readonly CLAN_WAR_RESET_HOUR_UTC: number = 10;
+
   private readonly LAST_SEEN_GACE_PERIOD_MS = 1000 * 60 * 60 * 24 * 2.5; // 2.5 days
   private readonly API_KEY = import.meta.env.NG_APP_CLASH_API_KEY;
 
@@ -70,7 +71,7 @@ export class ClashRoyaleService {
         for (const member of allMembers) {
           this.setHistoricalMembershipData(member, allSnapshots);
           member.lastSeenParsed = this.parseLastSeen(member.lastSeen);
-          member.newlyJoined = this.getTimeSinceJoin(member) < this.NEW_JOIN_GRACE_PERIOD_MS;
+          member.newlyJoined = this.isNewlyJoined(member);
           member.donationEval = this.evaluateDonations(member);
           member.shouldKick = this.shouldKick(member);
           member.shouldNudge = this.shouldNudge(member);
@@ -153,12 +154,6 @@ export class ClashRoyaleService {
       return false; // Already not in the clan.
     }
 
-    // Give new players a grace period.
-    const timeSinceJoin = Date.now() - new Date(member.earliestMembershipTimestamp).getTime();
-    if (timeSinceJoin < this.NEW_JOIN_GRACE_PERIOD_MS) {
-      return false;
-    }
-
     // Kick if they didn't participate in war.
     if (this.shouldKickForWar(member, 0, member.currentWar)) {
       return true;
@@ -208,13 +203,6 @@ export class ClashRoyaleService {
   }
 
   private isAccountableForWar(warStart: Date, warEnd: Date, joinTime: Date): boolean {
-    const now = new Date();
-    if ((now.getTime() - warStart.getTime()) < this.WAR_GRACE_PERIOD_MS) {
-      // No one is accountable within the war start grace period.
-      // This effectively only applies to the active war.
-      return false;
-    }
-
     if (joinTime.getTime() > warEnd.getTime()) {
       // The player joined after the war ended, so they are not accountable.
       return false;
@@ -228,22 +216,30 @@ export class ClashRoyaleService {
     if (joinTime.getTime() > warStart.getTime() &&
       joinTime.getTime() < warEnd.getTime()) {
       // The player joined in the middle of the war.
-      // They are accountable if they had enough time to participate.
-      if (warEnd.getTime() - joinTime.getTime() > this.WAR_GRACE_PERIOD_MS) {
-        return true;
-      }
+      return true;
     }
 
     // Not accountable by default.
     return false;
   }
 
-  /**
-   * @param member The member to check
-   * @returns The duration, in milliseconds, since join detected
-   */
-  private getTimeSinceJoin(member: ClanMember): number {
-    return Date.now() - new Date(member.earliestMembershipTimestamp).getTime();
+  private isNewlyJoined(member: ClanMember): boolean {
+    let joinDate = new Date(member.earliestMembershipTimestamp);
+    let lastReset = this.getLastReset();
+    return joinDate > lastReset;
+  }
+
+  private getLastReset(): Date {
+    const now = new Date();
+    const lastReset = new Date();
+
+    lastReset.setUTCHours(this.CLAN_WAR_RESET_HOUR_UTC, 0, 0, 0);
+
+    // If 10am UTC is in the future, go back to yesterday.
+    if (lastReset > now) {
+      lastReset.setUTCDate(lastReset.getUTCDate() - 1);
+    }
+    return lastReset;
   }
 
   private shouldNudge(member: ClanMember): boolean {
