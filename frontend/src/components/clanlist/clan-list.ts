@@ -3,7 +3,6 @@ import { ClashRoyaleService } from '../../service/clash-royale';
 import { ClanMember, ClanResult } from '../../../../shared/models/clan-member';
 import { Observable, timer, switchMap, shareReplay } from 'rxjs';
 import { AsyncPipe } from '@angular/common';
-import { KickCountService } from '../../service/kick-count-service';
 
 const GUINEA_GUNS_TAG = '#QJCLJ8LR';
 
@@ -48,8 +47,7 @@ export class ClanListComponent implements OnInit {
   lastFetch: Date | undefined;
 
   constructor(
-    private crService: ClashRoyaleService,
-    private kickCountService: KickCountService) {}
+    private crService: ClashRoyaleService) {}
 
   ngOnInit(): void {
     // Refresh the data for the view periodically, but also fetch immediately.
@@ -88,13 +86,6 @@ export class ClanListComponent implements OnInit {
     const joinDate = new Date(member.earliestMembershipTimestamp);
     const diff = now.getTime() - joinDate.getTime();
     return this.DATE_TOOLTIP_FORMAT.format(joinDate) + " (" + this.formatDuration(diff) + " ago)";
-  }
-
-  updateKickCount(member: ClanMember, event: Event) {
-    const input = event.target as HTMLInputElement;
-    const value = parseInt(input.value, 10) || 0;
-    this.kickCountService.setKickCount(member.tag, value);
-    member.kickCount = value; // Update local UI state
   }
 
   private formatDuration(ms: number): string {

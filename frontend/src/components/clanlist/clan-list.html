@@ -27,7 +27,6 @@
               <th class="w-5 px-2 text-center" title="Joins">Joins</th>
               <th class="w-5 px-2 text-center" title="Earliest known membership">Join Date</th>
               <th class="w-5 px-2 text-center" title="Last Seen">Last Seen</th>
-              <th class="w-16 px-2 text-center" title="Kicks">Kicks</th>
               <th class="w-5 px-2 text-right" title="Donations">Don</th>
               <th class="w-20 px-2 text-right" title="Current War">W</th>
               <th class="w-20 px-2 text-right" title="Last War">W -1</th>
@@ -72,16 +71,6 @@
                 </td>
                 <td class="px-2 text-center" [title]="getLastSeenTooltip(member)">
                   {{ getLastSeen(member) }}
-                </td>
-                <td class="px-2 text-center">
-                  <input 
-                    type="number" 
-                    min="0"
-                    step="1"
-                    [value]="member.kickCount"
-                    (change)="updateKickCount(member, $event)"
-                    class="w-12 bg-slate-900 border border-slate-600 rounded text-center text-yellow-400 focus:border-yellow-500 outline-hidden"
-                  />
                 </td>
                 <td class="px-2 text-right">
                   {{ member.donations }}

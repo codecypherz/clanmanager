@@ -5,7 +5,6 @@ import { ClanMember, ClanResult, ClanSnapshot, WarParticipant } from '@clan-mana
 import { environment } from '../environments/environment';
 import { map } from 'rxjs/operators';
 import { SnapshotService } from './snapshot-service';
-import { KickCountService } from './kick-count-service';
 
 // The endpoints invoked by this service and the responses mapped come
 // directly from the service defitions of the Clash Royale API.
@@ -27,8 +26,7 @@ export class ClashRoyaleService {
 
   constructor(
     private http: HttpClient,
-    private snapshotService: SnapshotService,
-    private kickCountService: KickCountService) { }
+    private snapshotService: SnapshotService) { }
 
   getClanMembers(clanTag: string): Observable<ClanResult> {
     // Clan tags in the URL must be URL-encoded (replace # with %23)
@@ -73,7 +71,6 @@ export class ClashRoyaleService {
           this.setHistoricalMembershipData(member, allSnapshots);
           member.lastSeenParsed = this.parseLastSeen(member.lastSeen);
           member.newlyJoined = this.getTimeSinceJoin(member) < this.NEW_JOIN_GRACE_PERIOD_MS;
-          member.kickCount = this.kickCountService.getKickCount(member.tag);
           member.shouldKick = this.shouldKick(member);
           member.shouldNudge = this.shouldNudge(member);
         }
