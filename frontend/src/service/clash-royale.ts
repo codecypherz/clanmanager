@@ -181,7 +181,6 @@ export class ClashRoyaleService {
 
     const now = new Date();
     const warStart = this.getThursday(weekOffset);
-    console.log("offest and war start", weekOffset, warStart);
     let warEnd = new Date(warStart);
     warEnd.setDate(warStart.getDate() + 4);
     const joinTime = new Date(member.earliestMembershipTimestamp);
