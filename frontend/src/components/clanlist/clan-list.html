@@ -87,53 +87,53 @@
 
       <div class="md:hidden divide-y divide-slate-700/50">
         @for (member of members; track member.tag) {
-          <div class="p-2 flex flex-col gap-1 transition-colors"
+          <div class="p-2 flex items-center gap-3 transition-colors"
               [class.bg-slate-800]="!member.historical"
               [class.bg-gray-900]="member.historical"
               [class.border-l-4]="member.shouldKick || member.shouldNudge || member.newlyJoined"
               [class.border-orange-500]="member.shouldKick"
               [class.border-yellow-500]="member.shouldNudge">
             
-            <div class="flex justify-between items-center">
-              <div class="flex items-center gap-2 min-w-0">
+            <div class="flex-1 min-w-0 flex flex-col gap-1 py-0.5">
+              <div class="flex items-center gap-2">
                 <span class="font-bold text-sm truncate" [class.text-slate-400]="member.historical">
                   {{ member.name }}
                 </span>
                 <span class="text-[10px] text-yellow-500 font-medium shrink-0">🏆{{ member.trophies }}</span>
               </div>
-              
-              <div class="flex gap-2 text-xs font-mono shrink-0">
-                <div class="grid grid-cols-4 gap-x-3 text-right">
-                  @for (item of [{w: member.currentWar, l: 'W↑'}, {w: member.lastWar, l: 'W1'}, {w: member.lastLastWar, l: 'W2'}]; track $index) {
-                    <div [class.text-green-400]="item.w?.warEval == 0"
-                        [class.text-red-400]="item.w?.warEval == 1"
-                        class="min-w-11.25"> <span class="text-slate-500 text-[10px] block leading-none">{{ item.l }}</span>
-                      {{ getFameText(item.w) }}
-                    </div>
-                  }
-                  
-                  <div [class.text-green-400]="member.donationEval == 0"
-                      [class.text-red-400]="member.donationEval == 1"
-                      class="min-w-8.75"> <span class="text-slate-500 text-[10px] block leading-none">DON</span>
-                    {{ member.donations }}
+
+              <div class="flex gap-2 text-[9px] uppercase tracking-tighter text-slate-500 font-semibold">
+                <span>Seen: {{ getRelativeTime(member.lastSeenParsed) }}</span>
+                <span [class.text-yellow-400]="member.newlyJoined">In: {{ getRelativeTime(member.earliestMembershipTimestamp) }}</span>
+                <span class="text-blue-400">J: {{ member.joinCount }}</span>
+              </div>
+            </div>
+
+            <div class="shrink-0 w-60">
+              <div class="grid grid-cols-4 gap-x-1 text-center font-mono">
+                <span class="text-slate-500 text-[8px] leading-none uppercase">W↑</span>
+                <span class="text-slate-500 text-[8px] leading-none uppercase">W1</span>
+                <span class="text-slate-500 text-[8px] leading-none uppercase">W2</span>
+                <span class="text-slate-500 text-[8px] leading-none uppercase">Don</span>
+
+                @for (item of [member.currentWar, member.lastWar, member.lastLastWar]; track $index) {
+                  <div class="text-xs font-bold leading-normal"
+                      [class.text-green-400]="item?.warEval == 0"
+                      [class.text-red-400]="item?.warEval == 1">
+                    {{ getFameText(item) }}
+                    @if (isPartialParticipation(item)) {
+                      <span class="text-slate-400"> {{ getActiveWarDays(item) }}</span>
+                    }
                   </div>
+                }
+                <div class="text-xs font-bold leading-normal"
+                    [class.text-green-400]="member.donationEval == 0"
+                    [class.text-red-400]="member.donationEval == 1">
+                  {{ member.donations }}
                 </div>
               </div>
             </div>
 
-            <div class="flex justify-between items-center text-[9px] uppercase tracking-tight">
-              <div class="flex gap-2 text-slate-400">
-                <span>Seen: {{ getRelativeTime(member.lastSeenParsed) }}</span>
-                <span [class.text-yellow-400]="member.newlyJoined">
-                  Joined: {{ getRelativeTime(member.earliestMembershipTimestamp) }}
-                </span>
-                <span class="text-blue-400">Joins: {{ member.joinCount }}</span>
-              </div>
-
-              <div class="flex gap-2">
-                
-              </div>
-            </div>
           </div>
         }
       </div>
