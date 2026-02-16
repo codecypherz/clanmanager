@@ -39,7 +39,7 @@
             <tr>
               <th class="p-3 text-right">🏆</th>
               <th class="p-3">Player</th>
-              <th class="p-3 text-right">W ↓</th>
+              <th class="p-3 text-right">W ↑</th>
               <th class="p-3 text-right">W-1</th>
               <th class="p-3 text-right">W-2</th>
               <th class="p-3 text-right">Don</th>
@@ -102,7 +102,7 @@
             </div>
 
             <div class="grid grid-cols-4 gap-1 text-center bg-slate-900/50 rounded-lg p-2 text-xs uppercase">
-              @for (item of [{w: member.currentWar, l: 'W ↓'}, {w: member.lastWar, l: 'W-1'}, {w: member.lastLastWar, l: 'W-2'}]; track $index) {
+              @for (item of [{w: member.currentWar, l: 'W ↑'}, {w: member.lastWar, l: 'W-1'}, {w: member.lastLastWar, l: 'W-2'}]; track $index) {
                 <div>
                   <div class="text-slate-500">{{ item.l }}</div>
                   <div class="font-bold"

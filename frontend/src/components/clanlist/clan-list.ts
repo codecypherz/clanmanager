@@ -57,12 +57,12 @@ export class ClanListComponent implements OnInit {
             const fameA = a.currentWar?.fame ?? 0;
             const fameB = b.currentWar?.fame ?? 0;
             
-            // Sort descending (highest points first)
-            if (fameB - fameA == 0) {
+            // Sort ascending (lowest points first)
+            if (fameA - fameB == 0) {
               // Tie break on trophies
-              return b.trophies - a.trophies;
+              return a.trophies - b.trophies;
             }
-            return fameB - fameA;
+            return fameA - fameB;
           });
       })
     );
