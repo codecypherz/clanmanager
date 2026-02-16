@@ -35,50 +35,65 @@
     <ng-template #memberList let-members="members">
       <div class="hidden md:block overflow-auto">
         <table class="w-full text-left border-collapse">
-          <thead class="sticky top-0 z-10 bg-slate-700 text-yellow-400 uppercase text-sm">
-            <tr>
-              <th class="p-3 text-right">🏆</th>
-              <th class="p-3">Player</th>
-              <th class="p-3 text-right">W ↑</th>
-              <th class="p-3 text-right">W-1</th>
-              <th class="p-3 text-right">W-2</th>
-              <th class="p-3 text-right">Don</th>
-              <th class="p-3 text-center">Joins</th>
-              <th class="p-3 text-center">Joined</th>
-              <th class="p-3 text-center">Last Seen</th>
+          <thead class="sticky top-0 z-30 bg-slate-900 border-b-2 border-slate-700">
+            <tr class="text-slate-400 uppercase text-[12px] font-black tracking-wider">
+              <th class="p-2">Member</th>
+              <th class="p-2 text-center">Trophies</th>
+              <th class="p-2 text-right border-l border-slate-700/50">W ↑</th>
+              <th class="p-2 text-right">W-1</th>
+              <th class="p-2 text-right">W-2</th>
+              <th class="p-2 text-right border-l border-slate-700/50">Don</th>
+              <th class="p-2 text-center">Joins</th>
+              <th class="p-2 text-center">Joined</th>
+              <th class="p-2 text-center">Seen</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-700">
+          <tbody class="divide-y divide-slate-700/50">
             @for (member of members; track member.tag) {
-              <tr class="hover:bg-slate-700/50 transition-colors group"
+              <tr class="hover:bg-slate-700/30 transition-colors group"
+                  [class.bg-slate-800]="!member.historical"
                   [class.bg-gray-900]="member.historical"
-                  [class.bg-orange-900]="member.shouldKick"
-                  [class.bg-yellow-900]="member.shouldNudge">
-                <td class="p-3 text-right font-mono">{{ member.trophies }}</td>
-                <td class="p-3">
-                  <div class="font-bold text-white group-hover:text-yellow-400">{{ member.name }}</div>
+                  [class.border-l-4]="member.shouldKick || member.shouldNudge || member.newlyJoined"
+                  [class.border-orange-500]="member.shouldKick"
+                  [class.border-yellow-500]="member.shouldNudge">
+                
+                <td class="p-2">
+                  <div class="font-bold text-sm group-hover:text-yellow-400 transition-colors"
+                      [class.text-slate-400]="member.historical">
+                    {{ member.name }}
+                  </div>
                 </td>
+
+                <td class="p-2 text-center">
+                  <span class="text-xs font-bold text-yellow-500">🏆{{ member.trophies }}</span>
+                </td>
+
                 @for (war of [member.currentWar, member.lastWar, member.lastLastWar]; track $index) {
-                  <td class="p-3 text-right"
+                  <td class="p-2 w-24 text-right font-mono text-xs font-bold"
+                      [class.border-l]=" $index === 0 "
+                      [class.border-slate-700]=" $index === 0 "
                       [class.text-green-400]="war?.warEval == 0"
-                      [class.text-red-400]="war?.warEval == 1">
-                    {{ getFameText(war) }}
-                    @if (isPartialParticipation(war)) {
-                      <span class="text-slate-400"> {{ getActiveWarDays(war) }}</span>
-                    }
+                      [class.text-red-400]="war?.warEval == 1"
+                      [class.text-slate-500]="getFameText(war) == 'N/A'">
+                    {{ getFameText(war) }}@if (isPartialParticipation(war)) {<span class="text-slate-500 ml-1">{{ getActiveWarDays(war) }}</span>}
                   </td>
                 }
-                <td class="p-3 text-right"
-                  [class.text-green-400]="member.donationEval == 0"
-                  [class.text-red-400]="member.donationEval == 1">
+
+                <td class="p-2 text-center font-mono text-xs font-bold border-l border-slate-700/50"
+                    [class.text-green-400]="member.donationEval == 0"
+                    [class.text-red-400]="member.donationEval == 1">
                   {{ member.donations }}
                 </td>
-                <td class="p-3 text-center">{{ member.joinCount }}</td>
-                <td class="p-3 text-center text-xs"
-                  [class.text-yellow-400]="member.newlyJoined">
+
+                <td class="p-2 text-center text-[10px] font-semibold text-slate-400 uppercase">{{ member.joinCount }}</td>
+                <td class="p-2 text-center text-[10px] font-semibold uppercase"
+                    [class.text-yellow-400]="member.newlyJoined"
+                    [class.text-slate-400]="!member.newlyJoined">
                   {{ getRelativeTime(member.earliestMembershipTimestamp) }}
                 </td>
-                <td class="p-3 text-center text-xs">{{ getRelativeTime(member.lastSeenParsed) }}</td>
+                <td class="p-2 text-center text-[10px] font-semibold text-blue-400 uppercase">
+                  {{ getRelativeTime(member.lastSeenParsed) }}
+                </td>
               </tr>
             }
           </tbody>
