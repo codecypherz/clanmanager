@@ -38,6 +38,14 @@ export class SnapshotService {
         const merged = [...remoteHistory, ...localHistory]
           .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
           .slice(0, this.MAX_SNAPSHOTS);
+        
+        console.log("  Number of merged snapshots: " + merged.length);
+        if (merged.length >= 2) {
+          let start = new Date(merged[0].timestamp);
+          let end = new Date(merged[merged.length - 1].timestamp);
+          console.log("  Data window:", start, end);
+          console.log("  Window duration:", this.getTimeDifference(start, end));
+        }
 
         // Update local storage with the fresh batch
         localStorage.setItem(this.getStorageKey(clanTag), JSON.stringify(merged));
@@ -45,6 +53,25 @@ export class SnapshotService {
         return merged;
       })
     );
+  }
+
+  private getTimeDifference(start: Date, end: Date): string {
+    // Calculate the absolute difference in milliseconds
+    const diffInMs: number = Math.abs(end.getTime() - start.getTime());
+
+    // Define conversion constants
+    const msInSecond = 1000;
+    const msInMinute = msInSecond * 60;
+    const msInHour = msInMinute * 60;
+    const msInDay = msInHour * 24;
+
+    // Calculate units
+    const days = Math.floor(diffInMs / msInDay);
+    const hours = Math.floor((diffInMs % msInDay) / msInHour);
+    const minutes = Math.floor((diffInMs % msInHour) / msInMinute);
+    const seconds = Math.floor((diffInMs % msInMinute) / msInSecond);
+
+    return `${days}d ${hours}h ${minutes}m ${seconds}s`;
   }
 
   public saveSnapshot(clanTag: string, membersSnapshot: ClanMember[], allSnapshots: ClanSnapshot[]): Observable<ClanSnapshot | null> {

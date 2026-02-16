@@ -44,20 +44,16 @@ export class ClashRoyaleService {
     }).pipe(
       // Join all the data once it's all available
       map(({ members, currentWar, warLog, allSnapshots }) => {
-        // Find our clan's specific entry in the last completed war log
-        const lastWarStandings = warLog.items[0]?.standings.find(s => s.clan.tag === clanTag);
-        const lastWarParticipants = lastWarStandings?.clan.participants || [];
-
-        const lastLastWarStandings = warLog.items[1]?.standings.find(s => s.clan.tag === clanTag);
-        const lastLastWarParticipants = lastLastWarStandings?.clan.participants || [];
-
-        const currentParticipants = currentWar.clan.participants;
+        const isWarDay = this.isWarDay();
+        const currentParticipants = this.getWarParticipants(clanTag, 0, isWarDay, currentWar, warLog);
+        const lastWarParticipants = this.getWarParticipants(clanTag, 1, isWarDay, currentWar, warLog);
+        const lastLastWarParticipants = this.getWarParticipants(clanTag, 2, isWarDay, currentWar, warLog);
 
         // Join the data
         const currentMembers: ClanMember[] = members.memberList.map(member => ({
           ...member,
           roleCode: this.getRoleCode(member.role),
-          currentWar: this.isWarDay() ? this.findWarParticipant(member, currentParticipants) : undefined,
+          currentWar: this.findWarParticipant(member, currentParticipants),
           lastWar: this.findWarParticipant(member, lastWarParticipants),
           lastLastWar: this.findWarParticipant(member, lastLastWarParticipants),
           historical: false,
@@ -96,6 +92,25 @@ export class ClashRoyaleService {
     return new HttpHeaders({
       'Authorization': `Bearer ${this.API_KEY}`
     });
+  }
+
+  private getWarParticipants(
+      clanTag: string,
+      weekOffset: number,
+      isWarDay: boolean,
+      currentWar: CurrentRiverRaceResponse,
+      warLog: RiverRaceLogResponse): WarParticipant[] {
+    
+    // Special case for active war
+    if (weekOffset == 0 && isWarDay) {
+      return currentWar.clan.participants;
+    }
+
+    // If it's not war day, use the weekOffset to access the warLog (e.g. 0, 1, 2).
+    // If it is war day, then the weekOffset will be 1 or higher. Subtract one to index.
+    const index = !isWarDay ? weekOffset : weekOffset - 1;
+    const warStandings = warLog.items[index]?.standings.find(s => s.clan.tag === clanTag);
+    return warStandings?.clan.participants || [];
   }
 
   private getLastSnapshotTime(allSnapshots: ClanSnapshot[]): Date | undefined {
@@ -140,9 +155,20 @@ export class ClashRoyaleService {
   }
 
   private isWarDay(): boolean {
-    // Thursday == 4
-    // Sunday == 0
-    return [4, 5, 6, 0].includes(new Date().getDay());
+    let now = new Date();
+    if ([5, 6, 0].includes(now.getUTCDate())) {
+      // It's a war day if it's Friday, Saturday, or Sunday
+      return true;
+    }
+    if (now.getUTCDate() == 4) {
+      // If it's Thursday, it's war day after reset
+      return now.getUTCHours() > this.CLAN_WAR_RESET_HOUR_UTC;
+    }
+    if (now.getUTCDate() == 1) {
+      // If it's Monday, it's war day before reset
+      return now.getUTCHours() < this.CLAN_WAR_RESET_HOUR_UTC;
+    }
+    return false;
   }
 
   private evaluateDonations(member: ClanMember): Eval {
@@ -181,11 +207,6 @@ export class ClashRoyaleService {
 
     let fame = war.fame || 0;
     let numDaysActiveInWar = this.getNumWarDaysActive(warStart, warEnd, joinTime, now);
-    if (member.name == "Jaden") {
-      console.log(warStart, now);
-      console.log("days between", this.getDaysBetween(warStart, now));
-      console.log(weekOffset, numDaysActiveInWar);
-    }
     war.warDaysActive = numDaysActiveInWar;
 
     if (numDaysActiveInWar > 0) {
