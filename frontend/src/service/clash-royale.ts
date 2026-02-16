@@ -155,18 +155,17 @@ export class ClashRoyaleService {
     }
 
     // Kick if they didn't participate in war.
+    let shouldKickForWar = false;
     if (this.shouldKickForWar(member, 0, member.currentWar)) {
-      return true;
+      shouldKickForWar = true;
     }
     if (this.shouldKickForWar(member, 1, member.lastWar)) {
-      return true;
+      shouldKickForWar = true;
     }
     if (this.shouldKickForWar(member, 2, member.lastLastWar)) {
-      return true;
+      shouldKickForWar = true;
     }
-
-    // Don't kick by default.
-    return false;
+    return shouldKickForWar;
   }
 
   private shouldKickForWar(member: ClanMember, weekOffset: number, war: WarParticipant | undefined): boolean {
@@ -182,6 +181,11 @@ export class ClashRoyaleService {
 
     let fame = war.fame || 0;
     let numDaysActiveInWar = this.getNumWarDaysActive(warStart, warEnd, joinTime, now);
+    if (member.name == "Jaden") {
+      console.log(warStart, now);
+      console.log("days between", this.getDaysBetween(warStart, now));
+      console.log(weekOffset, numDaysActiveInWar);
+    }
     war.warDaysActive = numDaysActiveInWar;
 
     if (numDaysActiveInWar > 0) {
@@ -372,16 +376,16 @@ export class ClashRoyaleService {
    */
   private getThursdayReset(weekOffset: number): Date {
     const now = new Date();
-    const currentDay = now.getDay();
+    const currentDay = now.getUTCDay();
     const targetDay = 4; // Thursday
 
     // Calculate days since the most recent Thursday
     let daysSinceRecentThursday = (currentDay - targetDay + 7) % 7;
 
-    const targetDate = new Date(now);
+    const targetDate = new Date(now.getTime());
 
     // Use the offset to go further back in time
-    targetDate.setDate(now.getDate() - daysSinceRecentThursday - (7 * weekOffset));
+    targetDate.setUTCDate(now.getUTCDate() - daysSinceRecentThursday - (7 * weekOffset));
 
     // Reset time to the UTC reset hour
     targetDate.setUTCHours(this.CLAN_WAR_RESET_HOUR_UTC, 0, 0, 0);
