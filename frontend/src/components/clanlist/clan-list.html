@@ -33,31 +33,31 @@
     </div>
 
     <ng-template #memberList let-members="members">
-      <div class="hidden md:block overflow-auto">
-        <table class="w-full text-left border-collapse">
-          <thead class="sticky top-0 z-30 bg-slate-900 border-b-2 border-slate-700">
+      <div class="hidden md:block overflow-auto max-h-[80vh]">
+        <table class="w-full text-left border-separate border-spacing-0">
+          <thead>
             <tr class="text-slate-400 uppercase text-[12px] font-black tracking-wider">
-              <th class="p-2">Member</th>
-              <th class="p-2 text-center">Trophies</th>
-              <th class="p-2 text-right border-l border-slate-700/50">W ↑</th>
-              <th class="p-2 text-right">W-1</th>
-              <th class="p-2 text-right">W-2</th>
-              <th class="p-2 text-right border-l border-slate-700/50">Don</th>
-              <th class="p-2 text-center">Joins</th>
-              <th class="p-2 text-center">Joined</th>
-              <th class="p-2 text-center">Seen</th>
+              <th class="sticky top-0 z-20 bg-slate-900 p-2 border-b-2 border-slate-700">Member</th>
+              <th class="sticky top-0 z-20 bg-slate-900 p-2 text-center border-b-2 border-slate-700">Trophies</th>
+              <th class="sticky top-0 z-20 bg-slate-900 p-2 text-center border-l border-b-2 border-slate-700">W ↑</th>
+              <th class="sticky top-0 z-20 bg-slate-900 p-2 text-center border-b-2 border-slate-700">W-1</th>
+              <th class="sticky top-0 z-20 bg-slate-900 p-2 text-center border-b-2 border-slate-700">W-2</th>
+              <th class="sticky top-0 z-20 bg-slate-900 p-2 text-center border-l border-b-2 border-slate-700">Don</th>
+              <th class="sticky top-0 z-20 bg-slate-900 p-2 text-center border-b-2 border-slate-700">Joins</th>
+              <th class="sticky top-0 z-20 bg-slate-900 p-2 text-center border-b-2 border-slate-700">Joined</th>
+              <th class="sticky top-0 z-20 bg-slate-900 p-2 text-center border-b-2 border-slate-700">Last Seen</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-700/50">
             @for (member of members; track member.tag) {
               <tr class="hover:bg-slate-700/30 transition-colors group"
                   [class.bg-slate-800]="!member.historical"
-                  [class.bg-gray-900]="member.historical"
-                  [class.border-l-4]="member.shouldKick || member.shouldNudge || member.newlyJoined"
-                  [class.border-orange-500]="member.shouldKick"
-                  [class.border-yellow-500]="member.shouldNudge">
+                  [class.bg-gray-900]="member.historical">
                 
-                <td class="p-2">
+                <td class="p-2 border-l-4 transition-colors"
+                    [class.border-transparent]="!member.shouldKick && !member.shouldNudge"
+                    [class.border-orange-500]="member.shouldKick"
+                    [class.border-yellow-500]="member.shouldNudge">
                   <div class="font-bold text-sm group-hover:text-yellow-400 transition-colors"
                       [class.text-slate-400]="member.historical">
                     {{ member.name }}
@@ -69,7 +69,7 @@
                 </td>
 
                 @for (war of [member.currentWar, member.lastWar, member.lastLastWar]; track $index) {
-                  <td class="p-2 w-24 text-right font-mono text-xs font-bold"
+                  <td class="p-2 w-24 text-center font-mono text-xs font-bold"
                       [class.border-l]=" $index === 0 "
                       [class.border-slate-700]=" $index === 0 "
                       [class.text-green-400]="war?.warEval == 0"
