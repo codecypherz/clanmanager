@@ -85,61 +85,69 @@
         </table>
       </div>
 
-      <div class="md:hidden divide-y divide-slate-700/50">
-        @for (member of members; track member.tag) {
-          <div class="p-1 flex items-center gap-2 transition-colors"
-              [class.bg-slate-800]="!member.historical"
-              [class.bg-gray-900]="member.historical"
-              [class.border-l-4]="member.shouldKick || member.shouldNudge || member.newlyJoined"
-              [class.border-orange-500]="member.shouldKick"
-              [class.border-yellow-500]="member.shouldNudge">
-            
-            <div class="flex-1 min-w-0 flex flex-col gap-1 py-0.5">
-              <div class="flex items-center gap-2">
-                <span class="font-bold text-sm truncate" [class.text-slate-400]="member.historical">
-                  {{ member.name }}
-                </span>
-                <span class="text-[12px] text-yellow-500 font-medium shrink-0">🏆{{ member.trophies }}</span>
-              </div>
-
-              <div class="flex gap-2 text-[9px] uppercase tracking-tighter text-slate-400 font-semibold">
-                <span>Seen: {{ getRelativeTime(member.lastSeenParsed) }}</span>
-                <span [class.text-yellow-400]="member.newlyJoined">J: {{ getRelativeTime(member.earliestMembershipTimestamp) }}</span>
-                <span class="text-blue-400">JC: {{ member.joinCount }}</span>
-              </div>
+      <div class="md:hidden">
+        <div class="sticky top-0 z-20 bg-slate-800 border-b border-slate-700 flex items-center gap-2 p-1 shadow-md">
+          <div class="flex-1"></div>
+          
+          <div class="shrink-0">
+            <div class="flex gap-x-1 text-center font-mono text-slate-400">
+              <div class="w-16 text-[10px] font-bold uppercase">W↑</div>
+              <div class="w-16 text-[10px] font-bold uppercase">W-1</div>
+              <div class="w-16 text-[10px] font-bold uppercase">W-2</div>
+              <div class="w-12 border-l border-slate-700/50 ml-1 text-[10px] font-bold uppercase">Don</div>
             </div>
+          </div>
+        </div>
 
-            <div class="shrink-0 border-l border-slate-700/50">
-              <div class="flex gap-x-1 text-center font-mono">
-                
-                @for (item of [
-                  { data: member.currentWar, label: 'W↑' }, 
-                  { data: member.lastWar, label: 'W-1' }, 
-                  { data: member.lastLastWar, label: 'W-2' }
-                ]; track $index) {
-                  <div class="w-16 flex flex-col"> <span class="text-[12px] leading-none uppercase">{{ item.label }}</span>
-                    <div class="text-xs font-bold leading-normal truncate"
-                        [class.text-green-400]="item.data?.warEval == 0"
-                        [class.text-red-400]="item.data?.warEval == 1"
-                        [class.text-slate-400]="getFameText(item.data) == 'N/A'">
-                      {{ getFameText(item.data) }}@if (isPartialParticipation(item.data)) {<span class="text-[12px] text-slate-400 ml-0.5">{{ getActiveWarDays(item.data) }}</span>}
-                    </div>
-                  </div>
-                }
-
-                <div class="w-12 flex flex-col border-l border-slate-700/50 ml-1"> <span class="text-[12px] leading-none uppercase">Don</span>
-                  <div class="text-xs font-bold leading-normal"
-                      [class.text-green-400]="member.donationEval == 0"
-                      [class.text-red-400]="member.donationEval == 1">
-                    {{ member.donations }}
-                  </div>
+        <div class="divide-y divide-slate-700/50">
+          @for (member of members; track member.tag) {
+            <div class="p-1 flex items-center gap-2 transition-colors"
+                [class.bg-slate-800]="!member.historical"
+                [class.bg-gray-900]="member.historical"
+                [class.border-l-4]="member.shouldKick || member.shouldNudge || member.newlyJoined"
+                [class.border-orange-500]="member.shouldKick"
+                [class.border-yellow-500]="member.shouldNudge">
+              
+              <div class="flex-1 min-w-0 flex flex-col gap-1 py-0.5">
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-sm truncate" [class.text-slate-400]="member.historical">
+                    {{ member.name }}
+                  </span>
+                  <span class="text-[12px] text-yellow-500 font-medium shrink-0">🏆{{ member.trophies }}</span>
                 </div>
 
+                <div class="flex gap-2 text-[9px] uppercase tracking-tighter text-slate-400 font-semibold">
+                  <span>Seen: {{ getRelativeTime(member.lastSeenParsed) }}</span>
+                  <span [class.text-yellow-400]="member.newlyJoined">J: {{ getRelativeTime(member.earliestMembershipTimestamp) }}</span>
+                  <span class="text-blue-400">JC: {{ member.joinCount }}</span>
+                </div>
+              </div>
+
+              <div class="shrink-0 border-l border-slate-700/50">
+                <div class="flex gap-x-1 text-center font-mono">
+                  @for (war of [member.currentWar, member.lastWar, member.lastLastWar]; track $index) {
+                    <div class="w-16"> 
+                      <div class="text-xs font-bold leading-normal truncate"
+                          [class.text-green-400]="war?.warEval == 0"
+                          [class.text-red-400]="war?.warEval == 1"
+                          [class.text-slate-400]="getFameText(war) == 'N/A'">
+                        {{ getFameText(war) }}@if (isPartialParticipation(war)) {<span class="text-[12px] text-slate-400 ml-0.5">{{ getActiveWarDays(war) }}</span>}
+                      </div>
+                    </div>
+                  }
+
+                  <div class="w-12 border-l border-slate-700/50 ml-1">
+                    <div class="text-xs font-bold leading-normal"
+                        [class.text-green-400]="member.donationEval == 0"
+                        [class.text-red-400]="member.donationEval == 1">
+                      {{ member.donations }}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-
-          </div>
-        }
+          }
+        </div>
       </div>
     </ng-template>
 
