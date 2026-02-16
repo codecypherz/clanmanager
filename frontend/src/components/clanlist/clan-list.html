@@ -4,7 +4,7 @@
     <div class="max-w-5xl mx-auto space-y-8">
       
       <div class="bg-slate-800 rounded-xl shadow-2xl border-2 sm:border-4 border-slate-700">
-        <div class="bg-linear-to-b from-yellow-400 to-yellow-600 px-4 py-3 border-b-4 border-yellow-700 flex justify-between items-center rounded-t-lg">
+        <div class="bg-linear-to-b from-yellow-400 to-yellow-600 p-2 border-b-4 border-yellow-700 flex justify-between items-center rounded-t-lg">
           <h2 class="text-xl sm:text-3xl font-black text-blue-900 uppercase tracking-tight">
             Guinea Guns: {{ clanResult.currentMemberCount }}/50
           </h2>
@@ -45,7 +45,7 @@
               <th class="sticky top-0 z-20 bg-slate-900 p-2 text-center border-l border-b-2 border-slate-700">Don</th>
               <th class="sticky top-0 z-20 bg-slate-900 p-2 text-center border-b-2 border-slate-700">Joins</th>
               <th class="sticky top-0 z-20 bg-slate-900 p-2 text-center border-b-2 border-slate-700">Joined</th>
-              <th class="sticky top-0 z-20 bg-slate-900 p-2 text-center border-b-2 border-slate-700">Last Seen</th>
+              <th class="sticky top-0 z-20 bg-slate-900 p-2 text-center border-b-2 border-slate-700">Seen</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-700/50">
@@ -101,8 +101,8 @@
       </div>
 
       <div class="md:hidden">
-        <div class="sticky top-0 z-30 bg-slate-900 border-b-2 border-slate-700 py-2 shadow-xl">
-          <div class="flex items-center gap-2 px-1">
+        <div class="sticky top-0 z-30 bg-slate-900 border-b-2 border-slate-700 shadow-xl">
+          <div class="flex items-center gap-1 px-1">
             <div class="flex-1">
               <span class="text-[12px] font-bold uppercase pl-2">Member</span>
             </div>
@@ -120,14 +120,14 @@
 
         <div class="divide-y divide-slate-700/50">
           @for (member of members; track member.tag) {
-            <div class="p-1 flex items-center gap-2 transition-colors"
+            <div class="px-1 flex items-center gap-1 transition-colors"
                 [class.bg-slate-800]="!member.historical"
                 [class.bg-gray-900]="member.historical"
-                [class.border-l-4]="member.shouldKick || member.shouldNudge || member.newlyJoined"
+                [class.border-l-4]="member.shouldKick || member.shouldNudge"
                 [class.border-orange-500]="member.shouldKick"
                 [class.border-yellow-500]="member.shouldNudge">
               
-              <div class="flex-1 min-w-0 flex flex-col gap-1 py-0.5">
+              <div class="flex-1 min-w-0 flex flex-col gap-1">
                 <div class="flex items-center gap-2">
                   <span class="font-bold text-sm truncate active:whitespace-normal active:overflow-visible active:z-50" 
                         [class.text-slate-400]="member.historical">
