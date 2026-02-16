@@ -114,7 +114,8 @@
               
               <div class="flex-1 min-w-0 flex flex-col gap-1 py-0.5">
                 <div class="flex items-center gap-2">
-                  <span class="font-bold text-sm truncate" [class.text-slate-400]="member.historical">
+                  <span class="font-bold text-sm truncate active:whitespace-normal active:overflow-visible active:z-50" 
+                        [class.text-slate-400]="member.historical">
                     {{ member.name }}
                   </span>
                   <span class="text-[12px] text-yellow-500 font-medium shrink-0">🏆{{ member.trophies }}</span>
