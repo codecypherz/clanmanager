@@ -45,6 +45,7 @@ export class ClashRoyaleService {
       // Join all the data once it's all available
       map(({ members, currentWar, warLog, allSnapshots }) => {
         const isWarDay = this.isWarDay();
+        console.log("War day", isWarDay);
         const currentParticipants = this.getWarParticipants(clanTag, 0, isWarDay, currentWar, warLog);
         const lastWarParticipants = this.getWarParticipants(clanTag, 1, isWarDay, currentWar, warLog);
         const lastLastWarParticipants = this.getWarParticipants(clanTag, 2, isWarDay, currentWar, warLog);
@@ -156,15 +157,15 @@ export class ClashRoyaleService {
 
   private isWarDay(): boolean {
     let now = new Date();
-    if ([5, 6, 0].includes(now.getUTCDate())) {
+    if ([5, 6, 0].includes(now.getUTCDay())) {
       // It's a war day if it's Friday, Saturday, or Sunday
       return true;
     }
-    if (now.getUTCDate() == 4) {
+    if (now.getUTCDay() == 4) {
       // If it's Thursday, it's war day after reset
       return now.getUTCHours() > this.CLAN_WAR_RESET_HOUR_UTC;
     }
-    if (now.getUTCDate() == 1) {
+    if (now.getUTCDay() == 1) {
       // If it's Monday, it's war day before reset
       return now.getUTCHours() < this.CLAN_WAR_RESET_HOUR_UTC;
     }
@@ -284,19 +285,7 @@ export class ClashRoyaleService {
       return false; // Can't nudge someone that's not there!
     }
 
-    // Nudge people who have been inactive for a bit.
-    const now = new Date();
-    const lastSeen = member.lastSeenParsed;
-    const diff = now.getTime() - lastSeen.getTime();
-    if (diff > this.LAST_SEEN_GACE_PERIOD_MS) {
-      return true;
-    }
-
-    // Only suggest nudges if it's Thursday, Friday, Saturday, or Sunday
-    // if ([4, 5, 6, 0].includes(new Date().getDay())) {
-    //   const decksUsedToday = member.currentWar?.decksUsedToday || 0;
-    //   return decksUsedToday == 0;
-    // }
+    // No nudge logic for now.
     return false;
   }
 
