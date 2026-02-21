@@ -5,5 +5,9 @@
     "frontend",
     "backend",
     "shared"
-  ]
+  ],
+  "overrides": {
+    "ajv": "^8.17.1",
+    "minimatch": "^10.2.1"
+  }
 }
