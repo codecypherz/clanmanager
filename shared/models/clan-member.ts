@@ -35,6 +35,7 @@ export interface ClanMember {
   lastSeenParsed: Date;
   roleCode: string;
   joinCount: number;
+  mostRecentJoinTimestamp: Date;
   earliestMembershipTimestamp: Date;
   newlyJoined: boolean;
   historical: boolean;

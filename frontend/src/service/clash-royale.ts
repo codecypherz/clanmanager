@@ -230,7 +230,7 @@ export class ClashRoyaleService {
     const warStart = this.getThursdayReset(weekOffset);
     let warEnd = new Date(warStart);
     warEnd.setDate(warStart.getDate() + 4);
-    const joinTime = new Date(member.earliestMembershipTimestamp);
+    const joinTime = new Date(member.mostRecentJoinTimestamp);
 
     let fame = war.fame || 0;
     let numDaysActiveInWar = this.getNumWarDaysActive(warStart, warEnd, joinTime, now);
@@ -288,7 +288,7 @@ export class ClashRoyaleService {
   }
 
   private isNewlyJoined(member: ClanMember): boolean {
-    let joinDate = new Date(member.earliestMembershipTimestamp);
+    let joinDate = new Date(member.mostRecentJoinTimestamp);
     let lastReset = this.getLastReset();
     return joinDate > lastReset;
   }
@@ -317,11 +317,14 @@ export class ClashRoyaleService {
 
   private setHistoricalMembershipData(member: ClanMember, allSnapshots: ClanSnapshot[]) {
     // Default timestamp for all cases.
-    var earliestMembershipTimestamp = new Date();
+    var now = new Date();
+    var mostRecentJoinTimestamp = now;
+    var earliestMembershipTimestamp = now;
 
     if (allSnapshots.length == 0) {
       // No history, therefore the member is current.
       member.joinCount = 1;
+      member.mostRecentJoinTimestamp = mostRecentJoinTimestamp;
       member.earliestMembershipTimestamp = earliestMembershipTimestamp;
       return;
     }
@@ -339,10 +342,11 @@ export class ClashRoyaleService {
     // This walks backward in time.
     for (const snapshot of allSnapshots) {
       var isMember = this.isMember(member.tag, snapshot);
+      var snapshotTimestamp = new Date(snapshot.timestamp);
 
       // Keep the oldest timestamp for which we detected membership as the join time.
       if (isMember) {
-        earliestMembershipTimestamp = new Date(snapshot.timestamp);
+        earliestMembershipTimestamp = snapshotTimestamp;
       }
 
       // Now determine if join count should be incremented.
@@ -354,10 +358,22 @@ export class ClashRoyaleService {
         // Detected a previous join
         joinCount++;
       }
+      if (lastIsMember && !isMember) {
+        if (mostRecentJoinTimestamp == now) {
+          // Set the most recent join to the first timestamp where we detected them not a member.
+          mostRecentJoinTimestamp = snapshotTimestamp;
+        }
+      }
       lastIsMember = isMember;
     }
 
+    // If we went through the full history and still think join is "now" then set join to earliest (e.g. oldest).
+    if (mostRecentJoinTimestamp == now) {
+      mostRecentJoinTimestamp = earliestMembershipTimestamp;
+    }
+
     member.joinCount = joinCount;
+    member.mostRecentJoinTimestamp = mostRecentJoinTimestamp;
     member.earliestMembershipTimestamp = earliestMembershipTimestamp;
   }
 
