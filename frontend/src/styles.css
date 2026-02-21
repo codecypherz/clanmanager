@@ -9,5 +9,21 @@
   }
 }
 
-/* Tip: Import a font like 'Rubik' or 'Bangers' in your index.html 
-   to match the game's bold typography */
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg, 
+    #fbbf24 0%, 
+    #fffbeb 50%, 
+    #fbbf24 100%
+  );
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 3s linear infinite;
+}

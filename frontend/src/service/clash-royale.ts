@@ -23,6 +23,27 @@ export class ClashRoyaleService {
   private readonly LAST_SEEN_GACE_PERIOD_MS = 1000 * 60 * 60 * 24 * 2.5; // 2.5 days
   private readonly API_KEY = import.meta.env.NG_APP_CLASH_API_KEY;
 
+  private readonly KNOWN_IRL: ReadonlySet<string> = new Set([
+    "#20JYULYL", // Jaden
+    "#Y9PGPV2Q", // Leon II
+    "#2QULCGCRJ", // Celeres
+    "#VLRLGYQ90", // Leir Bag
+    "#20LPL9YG08", // Hotrunner7
+    "#U090CVJCR", // Aragorn
+    "#29V280929", // pjwest
+    "#UUVYPPYGR", // SPLATOON
+    "#UQUVLYLJG", // Pega
+    "#2028YP0GG2", // Nemesis Bacon
+    "#UG0RV990V", // FIRE FIST ACE
+    "#20J9LV9JJ9", // Mantis64
+    "#2090G0RG0J", // Mantis6472
+    "#UGCURUUG8", // Cypher
+    "#20L2VJGG08", // Steve
+    "#VQ0JG9LCG", // Leon
+    "#20L0YRJY99", // SPLATOON 2
+    "#VCPR9LRG0", // Princeton
+  ]);
+
   private baseUrl = environment.baseClashRoyaleApiUrl;
 
   constructor(
@@ -53,6 +74,7 @@ export class ClashRoyaleService {
         // Join the data
         const currentMembers: ClanMember[] = members.memberList.map(member => ({
           ...member,
+          knownInRealLife: this.isKnownInRealLife(member),
           roleCode: this.getRoleCode(member.role),
           currentWar: this.findWarParticipant(member, currentParticipants),
           lastWar: this.findWarParticipant(member, lastWarParticipants),
@@ -126,6 +148,10 @@ export class ClashRoyaleService {
     const oldestSnapshot = allSnapshots[allSnapshots.length - 1];
     const oldestTime = new Date(oldestSnapshot.timestamp);
     return now.getTime() - oldestTime.getTime();
+  }
+
+  private isKnownInRealLife(member: ClanMember): boolean {
+    return this.KNOWN_IRL.has(member.tag);
   }
 
   private getRoleCode(role: string): string {

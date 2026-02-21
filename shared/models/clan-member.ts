@@ -41,6 +41,7 @@ export interface ClanMember {
 
   // Fields set with human input
   kickCount: number;
+  knowInRealLife: boolean;
 
   // Fields set for historical members
   // e.g. historical=true

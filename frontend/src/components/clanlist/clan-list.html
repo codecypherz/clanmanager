@@ -59,6 +59,7 @@
                     [class.border-orange-500]="member.shouldKick"
                     [class.border-yellow-500]="member.shouldNudge">
                   <div class="font-bold text-sm group-hover:text-yellow-400 transition-colors"
+                      [class.animate-shimmer]="member.knownInRealLife" 
                       [class.text-slate-400]="member.historical">
                     {{ member.name }}
                   </div>
@@ -130,16 +131,22 @@
               <div class="flex-1 min-w-0 flex flex-col gap-1">
                 <div class="flex items-center gap-2">
                   <span class="font-bold text-sm truncate active:whitespace-normal active:overflow-visible active:z-50" 
-                        [class.text-slate-400]="member.historical">
+                      [class.animate-shimmer]="member.knownInRealLife"      
+                      [class.text-slate-400]="member.historical">
                     {{ member.name }}
                   </span>
                   <span class="text-[12px] text-yellow-500 font-medium shrink-0">🏆{{ member.trophies }}</span>
                 </div>
 
                 <div class="flex gap-2 text-[9px] uppercase tracking-tighter text-slate-400 font-semibold">
-                  <span class="text-blue-400">S: {{ getRelativeTime(member.lastSeenParsed) }}</span>
+                  <span class=" text-blue-400">S: {{ getRelativeTime(member.lastSeenParsed) }}</span>
                   <span [class.text-yellow-400]="member.newlyJoined">J: {{ getRelativeTime(member.earliestMembershipTimestamp) }}</span>
                   <span>JC: {{ member.joinCount }}</span>
+                  <span>DU: {{ member.currentWar?.decksUsed }}</span>
+                  <span [class.text-green-400]="member.currentWar?.decksUsedToday == 4"
+                        [class.text-red-400]="member.currentWar?.decksUsedToday == 0">
+                    DUT: {{ member.currentWar?.decksUsedToday }}
+                  </span>
                 </div>
               </div>
 
