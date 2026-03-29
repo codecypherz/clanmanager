@@ -16,7 +16,7 @@ install: ## Install all workspace dependencies
 
 dev: ## Run frontend and backend dev servers in parallel
 	@echo "Starting frontend (port 4200) and backend (port 8080)..."
-	@trap 'kill 0' INT TERM; \
+	@trap 'kill %1 %2 2>/dev/null; wait' EXIT; \
 		cd frontend && npx ng serve & \
 		cd backend && npm run dev & \
 		wait
