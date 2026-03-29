@@ -77,10 +77,10 @@
 
       <div class="shrink-0">
         <div class="flex gap-x-1 text-center font-mono">
-          <div class="w-14 border-l border-slate-700/50 ml-1 text-[12px] font-black">W↑</div>
-          <div class="w-14 text-[12px] font-black">W-1</div>
-          <div class="w-14 text-[12px] font-black">W-2</div>
-          <div class="w-12 border-l border-slate-700/50 ml-1 text-[12px] font-black">DON</div>
+          <div class="w-11 border-l border-slate-700/50 ml-1 text-[12px] font-black">W↑</div>
+          <div class="w-11 text-[12px] font-black">W-1</div>
+          <div class="w-11 text-[12px] font-black">W-2</div>
+          <div class="w-10 border-l border-slate-700/50 ml-1 text-[12px] font-black">DON</div>
         </div>
       </div>
     </div>
@@ -105,14 +105,13 @@
             <span class="text-[12px] text-yellow-500 font-medium shrink-0">🏆{{ member.trophies }}</span>
           </div>
 
-          <div class="flex gap-2 text-[9px] uppercase tracking-tighter text-slate-400 font-semibold">
-            <span class=" text-blue-400">S: {{ getRelativeTime(member.lastSeenParsed) }}</span>
-            <span [class.text-yellow-400]="member.newlyJoined">J: {{ getRelativeTime(member.earliestMembershipTimestamp) }}</span>
-            <span>JC: {{ member.joinCount }}</span>
-            <span>DU: {{ member.currentWar?.decksUsed }}</span>
+          <div class="flex gap-1 text-[10px] uppercase tracking-tighter text-slate-400 font-semibold">
+            <span class="text-blue-400">S {{ getRelativeTime(member.lastSeenParsed) }}</span>
+            <span [class.text-yellow-400]="member.newlyJoined">J {{ getRelativeTime(member.earliestMembershipTimestamp) }}</span>
+            <span>J {{ member.joinCount }}</span>
             <span [class.text-green-400]="member.currentWar?.decksUsedToday == 4"
                   [class.text-red-400]="member.currentWar?.decksUsedToday == 0">
-              DUT: {{ member.currentWar?.decksUsedToday }}
+              D {{ member.currentWar?.decksUsed }}/{{ member.currentWar?.decksUsedToday }}
             </span>
           </div>
         </div>
@@ -120,7 +119,7 @@
         <div class="shrink-0 border-l border-slate-700/50">
           <div class="flex gap-x-1 text-center font-mono">
             @for (war of [member.currentWar, member.lastWar, member.lastLastWar]; track $index) {
-              <div class="w-14">
+              <div class="w-11">
                 <div class="text-xs font-bold leading-normal truncate"
                     [class.text-green-400]="war?.warEval == 0"
                     [class.text-red-400]="war?.warEval == 1"
@@ -130,7 +129,7 @@
               </div>
             }
 
-            <div class="w-12 border-l border-slate-700/50 ml-1">
+            <div class="w-10 border-l border-slate-700/50 ml-1">
               <div class="text-xs font-bold leading-normal"
                   [class.text-green-400]="member.donationEval == 0"
                   [class.text-red-400]="member.donationEval == 1">
