@@ -35,6 +35,11 @@ try {
 const db = getFirestore('clanmanager');
 console.log("Firestore initialized successfully");
 
+// Maximum snapshots to retain per clan in Firestore.
+// At ~35 KB/snapshot, 2850 snapshots ≈ 100 MB of storage.
+// At one snapshot every 4 hours, 2850 ≈ 475 days of history.
+const MAX_SNAPSHOTS_PER_CLAN = 2850;
+
 // Initialize Express
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -73,7 +78,22 @@ app.post('/api/snapshots', async (req, res) => {
 
     const docRef = await db.collection('snapshots').add(snapshotData);
 
-    // TODO: Delete snapshots if we have more than 100.
+    // Prune oldest snapshots beyond the per-clan cap.
+    // Use count() aggregation (~3 reads for 2850 docs) instead of fetching all docs (~2850 reads).
+    const clanQuery = db.collection('snapshots').where('clanTag', '==', snapshotData.clanTag);
+    const countResult = await clanQuery.count().get();
+    const total = countResult.data().count;
+
+    if (total > MAX_SNAPSHOTS_PER_CLAN) {
+      const excess = total - MAX_SNAPSHOTS_PER_CLAN;
+      const oldest = await clanQuery.orderBy('timestamp', 'asc').limit(excess).get();
+      const batch = db.batch();
+      for (const doc of oldest.docs) {
+        batch.delete(doc.ref);
+      }
+      await batch.commit();
+      console.log(`Pruned ${oldest.size} old snapshot(s) for clan ${snapshotData.clanTag}`);
+    }
 
     res.status(201).json({ id: docRef.id, ...snapshotData });
 
