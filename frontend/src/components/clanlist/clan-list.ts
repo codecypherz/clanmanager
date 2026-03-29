@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ClashRoyaleService } from '../../service/clash-royale';
-import { ClanMember, ClanResult, Eval, WarParticipant } from '../../../../shared/models/clan-member';
+import { ClanMember, ClanResult } from '../../../../shared/models/clan-member';
 import { Observable, timer, switchMap, shareReplay, map } from 'rxjs';
-import { AsyncPipe, NgTemplateOutlet } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
+import { ClanHeaderComponent } from '../clan-header/clan-header';
+import { MemberTableComponent } from '../member-table/member-table';
 
 const GUINEA_GUNS_TAG = '#QJCLJ8LR';
 
@@ -21,7 +23,7 @@ const UNITS: Unit[] = [
 @Component({
   selector: 'app-clan-list',
   templateUrl: './clan-list.html',
-  imports: [AsyncPipe, NgTemplateOutlet]
+  imports: [AsyncPipe, ClanHeaderComponent, MemberTableComponent]
 })
 export class ClanListComponent implements OnInit {
 
@@ -56,7 +58,7 @@ export class ClanListComponent implements OnInit {
             // Handle null/undefined war objects by defaulting fame to 0
             const fameA = a.currentWar?.fame ?? 0;
             const fameB = b.currentWar?.fame ?? 0;
-            
+
             // Sort ascending (lowest points first)
             if (fameA - fameB == 0) {
               // Tie break on trophies
@@ -75,7 +77,7 @@ export class ClanListComponent implements OnInit {
   getRelativeTime(timestamp: number | Date): string {
     const diff = new Date().getTime() - new Date(timestamp).getTime();
     if (diff < 60000) return 'Now';
-    
+
     // Find the largest unit that fits
     for (const { label, ms: unitMs } of UNITS) {
       const count = Math.floor(diff / unitMs);
@@ -84,28 +86,5 @@ export class ClanListComponent implements OnInit {
       }
     }
     return '??';
-  }
-
-  getFameText(war: WarParticipant | undefined): string {
-    if (war && war.warEval != Eval.NOT_APPLICABLE) {
-      return war.fame.toString();
-    }
-    return "N/A";
-  }
-
-  getActiveWarDays(war : WarParticipant | undefined): string {
-    if (war && war.warEval != Eval.NOT_APPLICABLE) {
-      let warDaysActive = war.warDaysActive || 0;
-      return "(" + warDaysActive + ")";
-    }
-    return "N/A";
-  }
-
-  isPartialParticipation(war : WarParticipant | undefined): boolean {
-    if (war && war.warEval != Eval.NOT_APPLICABLE) {
-      let warDaysActive = war.warDaysActive || 0;
-      return warDaysActive > 0 && warDaysActive < 4;
-    }
-    return false;
   }
 }
